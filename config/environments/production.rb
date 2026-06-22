@@ -15,7 +15,7 @@ Rails.application.configure do
 
   config.hosts << /.*\.up\.railway\.app/
   config.hosts << ENV["RAILWAY_PUBLIC_DOMAIN"]
-
-  puts "Allowed hosts: #{Rails.application.config.hosts.inspect}"
+  
+  config.hosts << "sawa-production-41b3.up.railway.app"
   
 end
