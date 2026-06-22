@@ -1,0 +1,80 @@
+<div class="page-header">
+  <h1>Paiements</h1>
+  <%= link_to "Soumissions en attente", pending_validation_payments_path, class: "btn btn-outline btn-sm" %>
+</div>
+
+<!-- Filtres -->
+<div class="card mb-4">
+  <div class="card-content">
+    <%= form_tag agent_payments_path, method: :get, style: "display: flex; gap: 12px; align-items: end; flex-wrap: wrap;" do %>
+      <div>
+        <%= label_tag :status, "Statut", class: "form-label" %>
+        <%= select_tag :status, options_for_select([["Tous", ""], ["Payé", "paid"], ["En attente", "pending"], ["Soumis", "submitted"], ["Retard", "late"]], @status), class: "form-select", onchange: "this.form.submit()" %>
+      </div>
+      <div>
+        <%= label_tag :building_id, "Immeuble", class: "form-label" %>
+        <%= select_tag :building_id, options_from_collection_for_select(@buildings, :id, :name, @building_id), prompt: "Tous", class: "form-select", onchange: "this.form.submit()" %>
+      </div>
+      <div>
+        <%= label_tag :q, "Recherche", class: "form-label" %>
+        <%= text_field_tag :q, @q, placeholder: "Locataire, référence...", class: "form-input", style: "width: 200px;" %>
+      </div>
+      <%= submit_tag "Filtrer", class: "btn btn-primary btn-sm", style: "margin-bottom: 2px;" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Locataire</th><th>Immeuble</th><th>App.</th><th>Période</th><th>Montant</th><th>Statut</th><th>Réf.</th><th>Preuve</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% @payments.each do |p| %>
+            <tr>
+              <td class="font-medium"><%= link_to p.tenant.full_name, tenant_path(p.tenant), class: "text-link" %></td>
+              <td class="text-muted"><%= p.apartment.building.name %></td>
+              <td class="text-muted"><%= p.apartment.number %></td>
+              <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+              <td><%= number_to_currency(p.amount, unit: "", precision: 0) %> F</td>
+              <td>
+                <span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
+                  <%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %>
+                </span>
+              </td>
+              <td class="text-xs text-muted"><%= p.reference %></td>
+              <td>
+                <% if p.proof.present? %>
+                  <a href="<%= p.proof %>" target="_blank">
+                    <img src="<%= p.proof %>" style="width: 60px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                  </a>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+              <td>
+                <div class="flex gap-1">
+                  <%= link_to "Détails", p, class: "btn btn-ghost btn-xs" %>
+                  <% if p.status == 'submitted' %>
+                    <%= form_tag validate_payment_path(p), method: :post, style: "display: inline;" do %>
+                      <%= submit_tag "Valider", class: "btn btn-primary btn-xs", data: { confirm: "Valider ce paiement ?" } %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% if @payments.empty? %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>Aucun paiement</h3>
+        <p>Aucun résultat pour ces filtres</p>
+      </div>
+    <% end %>
+  </div>
+</div>

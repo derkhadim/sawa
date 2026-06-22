@@ -1,0 +1,134 @@
+<div class="mb-6">
+  <%= link_to @apartment.building, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <div class="flex items-center justify-between">
+    <h1>Appartement <%= @apartment.number %></h1>
+    <% if login_role == 'agence' %>
+      <%= link_to edit_apartment_path(@apartment), class: "btn btn-secondary btn-sm" do %>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Modifier
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
+  <% @apartment.photo_list.each do |url| %>
+    <div style="aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden; background: #f3f4f6;">
+      <img src="<%= url %>" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+  <% end %>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-6">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Informations</span></div>
+    <div class="card-content space-y-2">
+      <p><span class="text-muted text-sm">Immeuble:</span> <span class="font-medium"><%= @apartment.building.name %></span></p>
+      <p><span class="text-muted text-sm">Étage:</span> <span class="font-medium"><%= @apartment.floor || "—" %></span></p>
+      <p><span class="text-muted text-sm">Loyer:</span> <span class="font-bold text-primary text-lg"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA/mois</span></p>
+      <p><span class="text-muted text-sm">Statut:</span> <span class="badge <%= @apartment.occupied? ? 'badge-success' : 'badge-warning' %>"><%= @apartment.occupied? ? 'Occupé' : 'Libre' %></span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Locataire</span></div>
+    <div class="card-content space-y-2">
+      <% if @apartment.tenant %>
+        <p><span class="font-medium"><%= link_to @apartment.tenant.full_name, tenant_path(@apartment.tenant), class: "text-link" %></span></p>
+        <p class="text-muted text-sm"><%= @apartment.tenant.phone %></p>
+        <p class="text-muted text-sm"><%= @apartment.tenant.email %></p>
+        <% if login_role == 'agence' %>
+          <%= button_to "Désassigner", unassign_tenant_apartment_path(@apartment), method: :post, class: "btn btn-destructive btn-sm mt-2", onclick: "return confirm('Retirer #{@apartment.tenant.full_name} de cet appartement ?')" %>
+        <% end %>
+      <% else %>
+        <p class="text-muted">Aucun locataire</p>
+        <% if login_role == 'agence' %>
+          <%= link_to "Assigner un locataire", "#", class: "btn btn-primary btn-sm mt-2", onclick: "event.preventDefault(); document.getElementById('assign-form').classList.toggle('hidden');" %>
+          <div id="assign-form" class="hidden mt-3 space-y-3">
+            <%= form_tag assign_tenant_apartment_path(@apartment) do %>
+              <div class="space-y-2">
+                <%= label_tag :phone, "Numéro de téléphone", class: "form-label" %>
+                <%= telephone_field_tag :phone, nil, class: "form-input", placeholder: "+221771234567", required: true %>
+              </div>
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <%= label_tag :first_name, "Prénom (si nouveau)", class: "form-label" %>
+                  <%= text_field_tag :first_name, nil, class: "form-input", placeholder: "Prénom" %>
+                </div>
+                <div>
+                  <%= label_tag :last_name, "Nom (si nouveau)", class: "form-label" %>
+                  <%= text_field_tag :last_name, nil, class: "form-input", placeholder: "Nom" %>
+                </div>
+              </div>
+              <div class="mt-2">
+                <%= label_tag :email, "Email (si nouveau)", class: "form-label" %>
+                <%= email_field_tag :email, nil, class: "form-input", placeholder: "email@exemple.com" %>
+              </div>
+              <div class="text-xs text-muted mt-1">Si le numéro existe déjà, les champs ci-dessus sont ignorés.</div>
+              <%= submit_tag "Assigner", class: "btn btn-primary btn-sm mt-2" %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header"><span class="card-title">Paiements</span></div>
+  <div class="card-content p-0">
+    <% if @payments.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Mois</th><th>Montant</th><th>Échéance</th><th>Payé le</th><th>Statut</th></tr>
+          </thead>
+          <tbody>
+            <% @payments.each do |p| %>
+              <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
+                <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                <td><%= number_to_currency(p.amount, unit: "", precision: 0) %> F</td>
+                <td class="text-muted"><%= l(p.due_date, format: :short) %></td>
+                <td class="text-muted"><%= l(p.paid_at.to_date, format: :short) if p.paid_at %></td>
+                <td><span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : 'badge-warning' %>"><%= p.status.capitalize %></span></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state"><p class="text-muted">Aucun paiement</p></div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Signalements</span></div>
+  <div class="card-content p-0">
+    <% if @incidents.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Titre</th><th>Description</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% @incidents.each do |i| %>
+              <tr>
+                <td class="font-medium"><%= i.title %></td>
+                <td class="text-muted truncate" style="max-width: 200px;"><%= i.description %></td>
+                <td><span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>"><%= i.status_label %></span></td>
+                <td class="text-muted"><%= l(i.created_at.to_date, format: :short) %></td>
+                <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state"><p class="text-muted">Aucun signalement</p></div>
+    <% end %>
+  </div>
+</div>

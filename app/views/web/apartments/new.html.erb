@@ -1,0 +1,38 @@
+<div class="mb-6">
+  <%= link_to @building, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Nouvel appartement</h1>
+  <p class="text-muted text-sm mt-1"><%= @building.name %></p>
+</div>
+
+<div class="card max-w-lg mx-auto">
+  <div class="card-content">
+    <%= form_for [@building, @apartment], html: { class: "space-y-4" } do |f| %>
+      <div class="form-row">
+        <div class="space-y-2">
+          <%= f.label :number, "Numéro", class: "form-label" %>
+          <%= f.text_field :number, class: "form-input", placeholder: "101", required: true %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :floor, "Étage", class: "form-label" %>
+          <%= f.number_field :floor, class: "form-input" %>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :rent_amount, "Loyer mensuel (FCFA)", class: "form-label" %>
+        <%= f.number_field :rent_amount, class: "form-input", required: true %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :photos, "Photos (max 4)", class: "form-label" %>
+        <%= f.file_field :photos, multiple: true, class: "form-input", accept: "image/*" %>
+        <p class="text-xs text-muted">Sélectionnez jusqu'à 4 photos</p>
+      </div>
+      <div class="form-actions">
+        <%= f.submit "Créer", class: "btn btn-primary" %>
+        <%= link_to "Annuler", @building, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

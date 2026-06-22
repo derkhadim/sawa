@@ -1,0 +1,38 @@
+<div class="page-header">
+  <h1>Propriétaires</h1>
+  <%= link_to new_owner_path, class: "btn btn-primary btn-sm" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Ajouter
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <% if @owners.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Nom</th><th>Téléphone</th><th>Email</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @owners.each do |o| %>
+              <tr>
+                <td class="font-medium"><%= o.full_name %></td>
+                <td class="text-muted"><%= o.phone || "—" %></td>
+                <td class="text-muted"><%= o.email || "—" %></td>
+                <td><%= link_to "Modifier", edit_owner_path(o), class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">👤</div>
+        <h3>Aucun propriétaire</h3>
+        <p>Ajoutez des propriétaires pour enregistrer leurs immeubles</p>
+        <%= link_to "Ajouter", new_owner_path, class: "btn btn-primary mt-4" %>
+      </div>
+    <% end %>
+  </div>
+</div>

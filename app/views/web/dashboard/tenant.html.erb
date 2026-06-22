@@ -1,0 +1,133 @@
+<div class="page-header">
+  <h1>Mon espace</h1>
+</div>
+
+<% if @apartment %>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Mon appartement</span>
+      </div>
+      <div class="card-content">
+        <p class="font-semibold text-lg"><%= @apartment.number %></p>
+        <p class="text-muted text-sm"><%= @building.name %></p>
+        <p class="text-muted text-sm"><%= @building.address %></p>
+        <p class="mt-4 text-xl font-bold text-primary"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA/mois</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Paiement du mois</span>
+        <span class="badge <%= @current_payment&.status == 'paid' ? 'badge-success' : @current_payment&.status == 'late' ? 'badge-destructive' : @current_payment&.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
+          <%= @current_payment&.status == 'paid' ? 'Payé' : @current_payment&.status == 'late' ? 'En retard' : @current_payment&.status == 'submitted' ? 'Soumis' : 'En attente' %>
+        </span>
+      </div>
+      <div class="card-content">
+        <% if @current_payment&.status == 'paid' %>
+          <p class="text-muted text-sm">Payé le <%= l(@current_payment.paid_at.to_date, format: :long) %></p>
+          <%= link_to "Voir la quittance", @current_payment, class: "btn btn-outline btn-sm mt-3" %>
+        <% else %>
+          <p>Montant: <span class="font-semibold"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA</span></p>
+          <p class="text-muted text-sm mt-1">Échéance: 12 de chaque mois</p>
+          <div class="mt-4 flex gap-2">
+            <%= link_to "Payer maintenant", new_apartment_payment_path(@apartment), class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Historique des paiements</span>
+        <%= link_to "Voir tout", apartment_payments_path(@apartment), class: "btn btn-ghost btn-sm" %>
+      </div>
+      <div class="card-content p-0">
+        <% if @payments.any? %>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Période</th><th>Montant</th><th>Statut</th></tr>
+              </thead>
+              <tbody>
+                <% @payments.limit(6).each do |p| %>
+                  <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
+                    <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                    <td><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
+                    <td>
+                      <span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
+                        <%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="empty-state"><p class="text-muted">Aucun paiement</p></div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Mes signalements</span>
+        <div style="display: flex; gap: 4px;">
+          <%= link_to "Nouveau", new_apartment_incident_path(@apartment), class: "btn btn-primary btn-sm" %>
+          <%= link_to "Voir tout", tenant_incidents_path, class: "btn btn-ghost btn-sm" %>
+        </div>
+      </div>
+      <div class="card-content p-0">
+        <% if @incidents.any? %>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Titre</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <% @incidents.limit(5).each do |i| %>
+                  <tr>
+                    <td class="font-medium"><%= i.title %></td>
+                    <td>
+                      <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
+                        <%= i.status_label %>
+                      </span>
+                    </td>
+                    <td class="text-muted text-sm"><%= l(i.created_at.to_date, format: :short) %></td>
+                    <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="empty-state"><p class="text-muted">Aucun signalement</p></div>
+        <% end %>
+      </div>
+      <div class="card-footer">
+        <%= link_to "Donner mon préavis de départ", new_move_out_notice_path, class: "btn btn-ghost btn-sm" %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="card" style="max-width: 36rem; margin: 3rem auto;">
+    <div class="card-content" style="text-align: center; padding: 3rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🏠</div>
+      <h2 style="margin-bottom: 0.5rem;">Bienvenue sur Sawa !</h2>
+      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9375rem;">
+        Votre compte a été créé avec succès. Vous serez notifié dès qu'un appartement vous sera attribué par votre agence.
+      </p>
+      <div style="background: var(--muted); border-radius: var(--radius); padding: 1rem; text-align: left; font-size: 0.875rem;">
+        <p class="font-medium mb-2">Prochaines étapes :</p>
+        <ol style="margin: 0; padding-left: 1.25rem; color: var(--muted-foreground); line-height: 2;">
+          <li>Votre agence vous attribue un appartement</li>
+          <li>Vous recevez un email de confirmation</li>
+          <li>Vous pouvez payer votre loyer et faire vos signalements</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,42 @@
+<div class="page-header">
+  <h1>Signalements — Tous les immeubles</h1>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <% if @incidents.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Immeuble</th><th>Appartement</th><th>Locataire</th><th>Titre</th><th>Statut</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @incidents.each do |i| %>
+              <tr>
+                <td class="font-medium">
+                  <%= link_to i.apartment.building.name, i.apartment.building, class: "no-underline text-inherit" %>
+                </td>
+                <td class="text-muted"><%= i.apartment.number %></td>
+                <td><%= link_to i.tenant.full_name, tenant_path(i.tenant), class: "text-link" %></td>
+                <td><%= i.title %></td>
+                <td>
+                  <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
+                    <%= i.status_label %>
+                  </span>
+                </td>
+                <td class="text-muted"><%= l(i.created_at.to_date, format: :short) %></td>
+                <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">✅</div>
+        <h3>Aucun signalement</h3>
+        <p>Tout est en ordre dans vos immeubles</p>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="page-header">
+  <h1>Paiements en attente de validation</h1>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <% if @submitted_payments.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Locataire</th><th>Appartement</th><th>Période</th><th>Montant</th><th>Preuve</th><th>Date soumission</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% @submitted_payments.each do |p| %>
+              <tr>
+                <td class="font-medium"><%= link_to p.tenant.full_name, tenant_path(p.tenant), class: "text-link" %></td>
+                <td class="text-muted"><%= p.apartment.building.name %> — App. <%= p.apartment.number %></td>
+                <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                <td><%= number_to_currency(p.amount, unit: "", precision: 0) %> F</td>
+                <td>
+                  <% if p.proof.present? %>
+                    <a href="<%= p.proof %>" target="_blank" class="btn btn-ghost btn-sm">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      Voir
+                    </a>
+                  <% else %>
+                    <span class="text-muted">—</span>
+                  <% end %>
+                </td>
+                <td class="text-muted"><%= l(p.created_at.to_date, format: :short) %></td>
+                <td>
+                  <%= form_tag validate_payment_path(p), method: :post, style: "display: inline;" do %>
+                    <%= submit_tag "✅ Valider", class: "btn btn-primary btn-sm", data: { confirm: "Confirmer le paiement de #{p.tenant.full_name} pour #{t('date.month_names')[p.month]} #{p.year} ?" } %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">✅</div>
+        <h3>Aucune soumission en attente</h3>
+        <p>Tous les paiements soumis ont été traités</p>
+      </div>
+    <% end %>
+  </div>
+</div>

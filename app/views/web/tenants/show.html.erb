@@ -1,0 +1,121 @@
+<div class="mb-6">
+  <%= link_to :back, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1><%= @tenant.full_name %></h1>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-6">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Coordonnées</span></div>
+    <div class="card-content space-y-2">
+      <div class="flex items-center gap-3 mb-3">
+        <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #e5e7eb;">
+          <img src="<%= @tenant.profile_photo.presence || '/logo-circle.png' %>" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div>
+          <p class="font-medium"><%= @tenant.full_name %></p>
+          <p class="text-muted text-sm"><%= @tenant.email %></p>
+        </div>
+      </div>
+      <p><span class="text-muted text-sm">Téléphone:</span> <span class="font-medium"><%= @tenant.phone %></span></p>
+      <p><span class="text-muted text-sm">Membre depuis:</span> <span class="font-medium"><%= l(@tenant.created_at.to_date, format: :short) %></span></p>
+      <% if login_role == 'agence' %>
+        <hr class="my-3">
+        <p><span class="text-muted text-sm">Note interne:</span>
+          <span class="badge <%= @tenant.rating_badge_class %>" style="font-size: 0.875rem;">
+            <%= @tenant.rating_label || "Non noté" %>
+          </span>
+        </p>
+        <div class="flex gap-1 mt-2">
+          <%= button_to "Excellent", rating_tenant_path(@tenant, rating: 3), method: :put, class: "btn btn-sm #{@tenant.rating == 3 ? 'btn-success' : 'btn-ghost'}" %>
+          <%= button_to "Solvable",  rating_tenant_path(@tenant, rating: 2), method: :put, class: "btn btn-sm #{@tenant.rating == 2 ? 'btn-primary' : 'btn-ghost'}" %>
+          <%= button_to "Douteux",   rating_tenant_path(@tenant, rating: 1), method: :put, class: "btn btn-sm #{@tenant.rating == 1 ? 'btn-destructive' : 'btn-ghost'}" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Appartement</span></div>
+    <div class="card-content space-y-2">
+      <% if @apartment %>
+        <p><span class="text-muted text-sm">Immeuble:</span>
+          <span class="font-medium"><%= link_to @apartment.building.name, @apartment.building, class: "text-link" %></span>
+        </p>
+        <p><span class="text-muted text-sm">Appartement:</span>
+          <span class="font-medium"><%= link_to @apartment.number, @apartment, class: "text-link" %></span>
+        </p>
+        <p><span class="text-muted text-sm">Loyer:</span> <span class="font-bold text-primary"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA/mois</span></p>
+        <p><span class="text-muted text-sm">Statut:</span> <span class="badge <%= @apartment.occupied? ? 'badge-success' : 'badge-warning' %>"><%= @apartment.occupied? ? 'Occupé' : 'Libre' %></span></p>
+        <% if login_role == 'agence' && @apartment.occupied? %>
+          <% current_month_paid = @payments.any? { |p| p.month == Date.current.month && p.year == Date.current.year && p.status == 'paid' } %>
+          <% unless current_month_paid %>
+            <hr class="my-3">
+            <%= button_to "💵 Payer en cash (#{number_to_currency(@apartment.rent_amount, unit: '', precision: 0)} F CFA)", cash_payment_tenant_path(@tenant), method: :post, class: "btn", style: "width: 100%; background: #7c3aed; color: white; font-weight: 700; font-size: 1rem; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.3);", onclick: "return confirm('Enregistrer un paiement cash de #{number_to_currency(@apartment.rent_amount, unit: '', precision: 0)} FCFA pour ce locataire ?')" %>
+          <% else %>
+            <p class="text-success text-sm mt-2"><%= t('date.month_names')[Date.current.month] %> payé</p>
+          <% end %>
+        <% end %>
+      <% else %>
+        <p class="text-muted">Aucun appartement assigné</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header"><span class="card-title">Paiements récents</span></div>
+  <div class="card-content p-0">
+    <% if @payments.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Mois</th><th>Montant</th><th>Échéance</th><th>Statut</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @payments.each do |p| %>
+              <tr>
+                <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                <td><%= number_to_currency(p.amount, unit: "", precision: 0) %> F</td>
+                <td class="text-muted"><%= l(p.due_date, format: :short) %></td>
+                <td><span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>"><%= p.status.capitalize %></span></td>
+                <td><%= link_to "Voir", p, class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state"><p class="text-muted">Aucun paiement</p></div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Signalements</span></div>
+  <div class="card-content p-0">
+    <% if @incidents.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Titre</th><th>Statut</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @incidents.each do |i| %>
+              <tr>
+                <td class="font-medium"><%= i.title %></td>
+                <td><span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>"><%= i.status_label %></span></td>
+                <td class="text-muted"><%= l(i.created_at.to_date, format: :short) %></td>
+                <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state"><p class="text-muted">Aucun signalement</p></div>
+    <% end %>
+  </div>
+</div>

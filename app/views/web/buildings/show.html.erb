@@ -1,0 +1,103 @@
+<div class="mb-6">
+  <%= link_to buildings_path, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+
+  <div style="width: 100%; height: 240px; border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem; background: #f3f4f6;">
+    <img src="<%= @building.photo_url %>" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+
+  <div class="flex items-center justify-between">
+    <h1><%= @building.name %></h1>
+    <div class="flex gap-2">
+      <% if login_role == 'agence' %>
+        <%= link_to building_publications_path(@building), class: "btn btn-primary btn-sm" do %>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+          Fil d'actualité
+        <% end %>
+      <% end %>
+      <% if login_role == 'agence' %>
+        <%= link_to edit_building_path(@building), class: "btn btn-secondary btn-sm" do %>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Modifier
+        <% end %>
+        <%= link_to new_building_apartment_path(@building), class: "btn btn-primary btn-sm" do %>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Appartement
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-4 gap-4 mb-6">
+  <div class="card p-4 text-center">
+    <div class="stat-value"><%= @building.apartments.size %></div>
+    <div class="stat-label">Total</div>
+  </div>
+  <div class="card p-4 text-center">
+    <div class="stat-value" style="color: var(--primary);"><%= @building.occupied_apartments %></div>
+    <div class="stat-label">Occupés</div>
+  </div>
+  <div class="card p-4 text-center">
+    <div class="stat-value" style="color: oklch(0.627 0.194 56.69);"><%= @building.free_apartments %></div>
+    <div class="stat-label">Libres</div>
+  </div>
+  <div class="card p-4" style="text-align: left;">
+    <p class="text-xs text-muted mb-1">Adresse</p>
+    <p class="text-sm font-medium"><%= @building.address %></p>
+    <p class="text-xs text-muted mt-1"><%= @building.neighborhood %><%= " — #{@building.commune}" if @building.commune.present? %></p>
+    <p class="text-xs text-muted mt-1">Propriétaire: <%= @building.owner&.full_name || "—" %></p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Appartements</span>
+  </div>
+  <div class="card-content p-0">
+    <% if @apartments.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Étage</th>
+              <th>Loyer</th>
+              <th>Statut</th>
+              <th>Locataire</th>
+              <th>Téléphone</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @apartments.each do |a| %>
+              <tr>
+                <td class="font-medium"><%= a.number %></td>
+                <td class="text-muted"><%= a.floor || "—" %></td>
+                <td><%= number_to_currency(a.rent_amount, unit: "", precision: 0) %> F</td>
+                <td>
+                  <span class="badge <%= a.occupied? ? 'badge-success' : 'badge-warning' %>">
+                    <%= a.occupied? ? 'Occupé' : 'Libre' %>
+                  </span>
+                </td>
+                <td><%= a.tenant ? link_to(a.tenant.full_name, tenant_path(a.tenant), class: "text-link") : "—" %></td>
+                <td class="text-muted"><%= a.tenant&.phone || "—" %></td>
+                <td>
+                  <%= link_to "Voir", a, class: "btn btn-ghost btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">🏠</div>
+        <h3>Aucun appartement</h3>
+        <p>Ajoutez des appartements à cet immeuble</p>
+      </div>
+    <% end %>
+  </div>
+</div>

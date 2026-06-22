@@ -1,0 +1,27 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="card p-8">
+      <div class="login-header">
+        <div class="login-icon">🏢</div>
+        <h1>Sawa Pro</h1>
+        <p class="text-muted">Espace professionnel</p>
+      </div>
+
+      <%= form_tag pro_login_path, class: "space-y-4" do %>
+        <div class="space-y-2">
+          <label class="form-label" for="email">Email</label>
+          <%= email_field_tag :email, nil, class: "form-input", placeholder: "vous@exemple.com", required: true, autofocus: true %>
+        </div>
+        <div class="space-y-2">
+          <label class="form-label" for="password">Mot de passe</label>
+          <%= password_field_tag :password, nil, class: "form-input", placeholder: "••••••••", required: true %>
+        </div>
+        <%= submit_tag "Se connecter", class: "btn btn-primary w-full", style: "justify-content: center;" %>
+      <% end %>
+
+      <div class="login-link">
+        <%= link_to "Connexion locataire / propriétaire", login_path %>
+      </div>
+    </div>
+  </div>
+</div>

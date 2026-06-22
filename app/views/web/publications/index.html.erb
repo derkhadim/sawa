@@ -1,0 +1,63 @@
+<div class="page-header">
+  <h1>Fil d'actualité</h1>
+  <% if current_user.tenant? || current_user.agence? %>
+    <button onclick="document.getElementById('new-pub-form').classList.toggle('hidden')" class="btn btn-primary btn-sm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Publier
+    </button>
+  <% end %>
+</div>
+
+<% if current_user.tenant? || current_user.agence? %>
+  <div id="new-pub-form" class="card mb-6 hidden">
+    <div class="card-content">
+      <%= form_for [@building, @publication], html: { class: "space-y-3" } do |f| %>
+        <div class="space-y-2">
+          <%= f.label :content, "Votre message", class: "form-label" %>
+          <%= f.text_area :content, class: "form-textarea", rows: 3, placeholder: "Quoi de neuf dans l'immeuble ?", required: true %>
+        </div>
+        <div class="form-actions">
+          <%= f.submit "Publier", class: "btn btn-primary" %>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('new-pub-form').classList.add('hidden')">Annuler</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div class="space-y-4">
+  <% @publications.each do |p| %>
+    <div class="card">
+      <div class="card-content">
+        <div class="flex gap-3 mb-3">
+          <div class="pub-avatar"><%= p.tenant.first_name[0] %><%= p.tenant.last_name[0] %></div>
+          <div>
+            <div class="font-medium text-sm"><%= p.tenant.full_name %></div>
+            <div class="text-xs text-muted"><%= l(p.created_at, format: :long) %></div>
+          </div>
+        </div>
+        <div style="font-size: 0.9375rem; line-height: 1.6;"><%= simple_format(p.content) %></div>
+        <div class="flex items-center gap-3 mt-3 pt-3" style="border-top: 1px solid var(--border);">
+          <%= button_to like_publication_path(p), method: :post, class: "btn btn-ghost btn-sm", style: "gap: 0.375rem;" do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="<%= p.liked_by?(current_user) ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-3.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+            <%= p.likes_count %>
+          <% end %>
+          <%= link_to publication_path(p), class: "btn btn-ghost btn-sm", style: "gap: 0.375rem;" do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <%= p.comments_count %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @publications.empty? %>
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state-icon">📰</div>
+        <h3>Aucune publication</h3>
+        <p>Soyez le premier à publier !</p>
+      </div>
+    </div>
+  <% end %>
+</div>

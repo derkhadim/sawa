@@ -1,0 +1,138 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <span class="badge badge-secondary"><%= Date.current.strftime("%B %Y") %></span>
+</div>
+
+<div class="grid grid-cols-4 gap-4 mb-8">
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings.size %></div>
+    <div class="stat-label">Immeubles</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings.sum(&:occupied_apartments) %></div>
+    <div class="stat-label">Occupés</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings.sum(&:free_apartments) %></div>
+    <div class="stat-label">Libres</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value text-primary"><%= @open_incidents_count %></div>
+    <div class="stat-label">Signalements ouverts</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @submitted_payments_count %></div>
+    <div class="stat-label">
+      <%= link_to "Soumissions en attente", pending_validation_payments_path, class: "no-underline text-inherit" %>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-6">
+  <div class="card-header">
+    <span class="card-title">Recouvrement par immeuble</span>
+  </div>
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Immeuble</th>
+            <th>Appartements</th>
+            <th>Loyer total</th>
+            <th>Collecté</th>
+            <th>Taux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @buildings_stats.each do |s| %>
+            <tr>
+              <td>
+                <%= link_to s[:building].name, s[:building], class: "font-medium no-underline text-inherit hover:text-primary" %>
+              </td>
+              <td class="text-muted"><%= s[:building].occupied_apartments %>/<%= s[:building].apartments.size %></td>
+              <td><%= number_to_currency(s[:total_rent], unit: "", precision: 0) %></td>
+              <td class="text-primary font-medium"><%= number_to_currency(s[:monthly_paid], unit: "", precision: 0) %></td>
+              <td>
+                <span class="font-semibold <%= s[:recovery] >= 80 ? 'text-primary' : s[:recovery] >= 50 ? 'text-destructive' : 'text-destructive' %>">
+                  <%= s[:recovery] %>%
+                </span>
+                <div class="progress-bar mt-1">
+                  <div class="progress-fill" style="width: <%= s[:recovery] %>%"></div>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Retards de paiement</span>
+    </div>
+    <div class="card-content p-0">
+      <% if @late_payments.any? %>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Locataire</th><th>Montant</th><th>Période</th><th>Échéance</th></tr>
+            </thead>
+            <tbody>
+              <% @late_payments.each do |p| %>
+                  <tr>
+                    <td class="font-medium"><%= link_to p.tenant.full_name, tenant_path(p.tenant), class: "no-underline text-inherit hover:text-primary" %></td>
+                    <td><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
+                    <td class="text-muted"><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                    <td class="text-destructive"><%= l(p.due_date, format: :short) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <h3>Aucun retard</h3>
+            <p>Tous les paiements sont à jour</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Paiements récents</span>
+      </div>
+      <div class="card-content p-0">
+        <% if @recent_payments.any? %>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Locataire</th><th>Montant</th><th>Période</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <% @recent_payments.each do |p| %>
+                  <tr>
+                    <td class="font-medium"><%= link_to p.tenant.full_name, tenant_path(p.tenant), class: "no-underline text-inherit hover:text-primary" %></td>
+                  <td class="text-primary font-medium"><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
+                  <td class="text-muted"><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                  <td class="text-muted"><%= l(p.paid_at.to_date, format: :short) if p.paid_at %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <h3>Aucun paiement</h3>
+          <p>Aucun paiement pour ce mois</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

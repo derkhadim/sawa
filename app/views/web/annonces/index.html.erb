@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h1>Nos annonces</h1>
+  <span class="badge badge-secondary"><%= @apartments.size %> disponibles</span>
+</div>
+
+<% if @apartments.any? %>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+    <% @apartments.each do |apt| %>
+      <%= link_to annonce_path(apt), class: "card no-underline text-inherit hover:shadow-sm transition-shadow p-0", style: "transition: box-shadow 0.15s;" do %>
+        <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; background: #f3f4f6; border-radius: var(--radius) var(--radius) 0 0;">
+          <img src="<%= apt.photo_list.first %>" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div style="padding: 0.75rem;">
+          <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem;">
+            Appartement <%= apt.number %> — <%= apt.building.name %>
+          </h3>
+          <p class="text-muted text-xs mb-1"><%= apt.building.address %></p>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="badge badge-success">Libre</span>
+            <span class="text-xs text-muted"><%= apt.building.neighborhood %></span>
+            <span class="text-xs text-muted">· Étage <%= apt.floor %></span>
+          </div>
+          <p class="text-lg font-bold text-primary"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA</p>
+          <p class="text-xs text-muted">par mois</p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card" style="max-width: 30rem; margin: 3rem auto;">
+    <div class="card-content" style="text-align: center; padding: 3rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🏡</div>
+      <h2 style="margin-bottom: 0.5rem;">Aucune annonce</h2>
+      <p class="text-muted">Tous les appartements sont actuellement occupés.</p>
+    </div>
+  </div>
+<% end %>

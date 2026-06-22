@@ -1,0 +1,42 @@
+<div class="page-header">
+  <h1>Immeubles</h1>
+  <% if login_role == 'agence' %>
+    <%= link_to new_building_path, class: "btn btn-primary" do %>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter
+    <% end %>
+  <% end %>
+</div>
+
+<div class="grid grid-cols-3 gap-4">
+  <% @buildings.each do |b| %>
+    <%= link_to b, class: "card no-underline text-inherit p-4 hover:shadow-sm transition-shadow", style: "transition: box-shadow 0.15s;" do %>
+      <div style="width: 100%; height: 140px; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.75rem; background: #f3f4f6;">
+        <img src="<%= b.photo_url %>" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      <h3 class="mb-2"><%= b.name %></h3>
+      <p class="text-muted text-sm mb-1"><%= b.address %></p>
+      <% if b.neighborhood.present? %>
+        <p class="text-muted text-sm mb-1"><%= b.neighborhood %><%= " — #{b.commune}" if b.commune.present? %></p>
+      <% end %>
+      <div class="flex gap-2 mt-3">
+        <span class="badge badge-primary"><%= b.apartments.size %> app.</span>
+        <span class="badge badge-success"><%= b.occupied_apartments %> occupés</span>
+        <span class="badge badge-warning"><%= b.free_apartments %> libres</span>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @buildings.empty? %>
+    <div class="card col-span-full">
+      <div class="empty-state">
+        <div class="empty-state-icon">🏢</div>
+        <h3>Aucun immeuble</h3>
+        <p>Commencez par ajouter un immeuble</p>
+        <% if login_role == 'agence' %>
+          <%= link_to "Ajouter", new_building_path, class: "btn btn-primary mt-4" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
