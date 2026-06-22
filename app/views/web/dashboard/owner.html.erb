@@ -1,0 +1,127 @@
+<div class="page-header">
+  <h1>Mon patrimoine</h1>
+  <span class="badge badge-secondary"><%= Date.current.strftime("%B %Y") %></span>
+</div>
+
+<div class="grid grid-cols-4 gap-4 mb-8">
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings.size %></div>
+    <div class="stat-label">Immeubles</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings_stats.sum { |s| s[:occupied_apartments] } %></div>
+    <div class="stat-label">Appartements occupés</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @buildings_stats.sum { |s| s[:free_apartments] } %></div>
+    <div class="stat-label">Appartements libres</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value text-primary"><%= @buildings_stats.sum { |s| s[:recovery] > 0 ? 1 : 0 } %>/<%= @buildings.size %></div>
+    <div class="stat-label">Immeubles en recouvrement</div>
+  </div>
+</div>
+
+<div class="card mb-6">
+  <div class="card-header">
+    <span class="card-title">Taux de recouvrement par immeuble</span>
+  </div>
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Immeuble</th>
+            <th>Appartements</th>
+            <th>Loyer total</th>
+            <th>Collecté</th>
+            <th>Taux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @buildings_stats.each do |s| %>
+            <tr>
+              <td class="font-medium"><%= s[:building].name %></td>
+              <td class="text-muted"><%= s[:occupied_apartments] %>/<%= s[:total_apartments] %></td>
+              <td><%= number_to_currency(s[:total_rent], unit: "", precision: 0) %> F</td>
+              <td class="text-primary font-medium"><%= number_to_currency(s[:monthly_paid], unit: "", precision: 0) %> F</td>
+              <td>
+                <span class="font-semibold <%= s[:recovery] >= 80 ? 'text-primary' : s[:recovery] >= 50 ? 'text-destructive' : 'text-destructive' %>">
+                  <%= s[:recovery] %>%
+                </span>
+                <div class="progress-bar mt-1">
+                  <div class="progress-fill" style="width: <%= s[:recovery] %>%"></div>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Signalements récents</span>
+    </div>
+    <div class="card-content p-0">
+      <% if @recent_incidents.any? %>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Titre</th><th>Appartement</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <% @recent_incidents.each do |i| %>
+                <tr>
+                  <td class="font-medium"><%= i.title %></td>
+                  <td class="text-muted">Appt <%= i.apartment.number %></td>
+                  <td>
+                    <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
+                      <%= i.status_label %>
+                    </span>
+                  </td>
+                  <td class="text-muted text-sm"><%= l(i.created_at.to_date, format: :short) %></td>
+                  <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <h3>Aucun signalement</h3>
+          <p>Tous les appartements sont en ordre</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Appartements par immeuble</span>
+    </div>
+    <div class="card-content">
+      <% @buildings.each do |b| %>
+        <% stat = @buildings_stats.find { |s| s[:building].id == b.id } %>
+        <div class="mb-4 pb-4 <%= 'border-b' unless b == @buildings.last %>">
+          <div class="font-medium mb-2"><%= b.name %></div>
+          <div class="flex gap-4 text-sm">
+            <div>
+              <span class="badge badge-success"><%= stat[:occupied_apartments] %> occupés</span>
+            </div>
+            <div>
+              <span class="badge badge-warning"><%= stat[:free_apartments] %> libres</span>
+            </div>
+            <div>
+              <span class="font-semibold"><%= stat[:total_apartments] %> total</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

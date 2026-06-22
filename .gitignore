@@ -1,0 +1,89 @@
+# Ignore bundler config
+/.bundle
+
+# Ignore gems installed locally
+/vendor/bundle
+
+# Ignore log files
+/log/*
+!/log/.keep
+
+# Ignore temporary files
+/tmp/*
+!/tmp/.keep
+
+# Ignore PID files
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Ignore cache files
+/tmp/cache/*
+!/tmp/cache/.keep
+
+# Ignore storage uploads (Active Storage)
+/storage/*
+!/storage/.keep
+
+# Ignore database files
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-*
+
+# Ignore master key (if not shared)
+/config/master.key
+
+# Ignore credentials backups
+/config/credentials/*.key
+
+# Ignore environment variables
+.env
+.env.*
+
+# Ignore node modules
+/node_modules
+
+# Ignore Yarn files
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# Ignore asset builds
+/public/assets
+/public/packs
+/public/packs-test
+
+# Ignore webpacker cache
+/tmp/webpacker
+
+# Ignore test coverage
+/coverage
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.swp
+
+# Ignore byebug history
+.byebug_history
+
+# Ignore Spring files
+/spring/*.pid
+
+# Ignore RuboCop cache
+.rubocop-https---cache
+.rubocop_cache
+
+# Ignore Sorbet files
+/sorbet/rbi/hidden-definitions/
+
+# Ignore generated docs
+/doc
+
+# Ignore Docker overrides
+docker-compose.override.yml

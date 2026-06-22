@@ -1,0 +1,27 @@
+fr:
+  login:
+    invalid_credentials: Email ou mot de passe invalide
+    role_unavailable: "Aucun profil %{role} associé à ce compte"
+  roles:
+    super_admin: Super Admin
+    agence: Agence
+    tenant: Locataire
+    owner: Propriétaire
+  date:
+    month_names: [~, Janvier, Février, Mars, Avril, Mai, Juin, Juillet, Août, Septembre, Octobre, Novembre, Décembre]
+    abbr_month_names: [~, Jan, Fév, Mar, Avr, Mai, Jun, Jul, Aoû, Sep, Oct, Nov, Déc]
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d %b %H:%M"
+      long: "%d %B %Y %H:%M"
+  number:
+    currency:
+      format:
+        unit: "FCFA "
+        precision: 0
+        format: "%n %u"

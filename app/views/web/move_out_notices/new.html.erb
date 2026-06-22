@@ -1,0 +1,25 @@
+<div class="login-page">
+  <div class="card" style="max-width: 28rem; width: 100%; text-align: center;">
+    <div class="card-content p-8">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🚪</div>
+      <h2 class="mb-2">Préavis de départ</h2>
+      <p class="text-muted text-sm mb-6">
+        Souhaitez-vous quitter votre appartement ?<br>
+        Un préavis sera envoyé à votre agence.
+      </p>
+
+      <%= form_for @notice, url: move_out_notices_path, html: { class: "space-y-4" } do |f| %>
+        <div class="space-y-2" style="text-align: left; max-width: 300px; margin: 0 auto;">
+          <%= f.label :move_out_date, "Date de départ", class: "form-label" %>
+          <%= f.date_field :move_out_date, class: "form-input", min: Date.tomorrow, required: true %>
+        </div>
+
+        <%= f.submit "Envoyer le préavis", class: "btn btn-primary btn-lg w-full", style: "justify-content: center;" %>
+      <% end %>
+
+      <div class="mt-4">
+        <%= link_to "Annuler", dashboard_tenant_path, class: "btn btn-ghost" %>
+      </div>
+    </div>
+  </div>
+</div>

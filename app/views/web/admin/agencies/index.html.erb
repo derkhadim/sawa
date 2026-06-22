@@ -1,0 +1,78 @@
+<div class="page-header">
+  <h1>Agences</h1>
+  <span class="badge badge-secondary"><%= @agencies.size %> agences</span>
+</div>
+
+<div class="space-y-4">
+  <% @agencies.each do |agency| %>
+    <div class="card">
+      <div class="card-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <span class="card-title"><%= agency.name %></span>
+          <span class="badge badge-secondary"><%= agency.users.size %> agent(s)</span>
+        </div>
+      </div>
+      <div class="card-content" style="padding: 1rem;">
+        <div class="grid grid-cols-3 gap-4 mb-4" style="font-size: 0.875rem; color: #666;">
+          <div>
+            <div style="font-weight: 600; color: #222;">Email</div>
+            <div><%= agency.email.presence || "—" %></div>
+          </div>
+          <div>
+            <div style="font-weight: 600; color: #222;">Téléphone</div>
+            <div><%= agency.phone.presence || "—" %></div>
+          </div>
+          <div>
+            <div style="font-weight: 600; color: #222;">Adresse</div>
+            <div><%= agency.address.presence || "—" %></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4" style="font-size: 0.875rem; color: #666;">
+          <div>
+            <div style="font-weight: 600; color: #222;">Immeubles</div>
+            <div><%= agency.buildings.size %></div>
+          </div>
+          <div>
+            <div style="font-weight: 600; color: #222;">Propriétaires</div>
+            <div><%= agency.owners.size %></div>
+          </div>
+          <div>
+            <div style="font-weight: 600; color: #222;">Créée le</div>
+            <div><%= l(agency.created_at.to_date, format: :default) %></div>
+          </div>
+        </div>
+
+        <% if agency.users.any? %>
+          <div style="margin-top: 1rem; border-top: 1px solid #e5e7eb; padding-top: 0.75rem;">
+            <div style="font-weight: 600; font-size: 0.875rem; color: #222; margin-bottom: 0.5rem;">
+              Comptes utilisateurs
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Inscrit le</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% agency.users.each do |user| %>
+                    <tr>
+                      <td class="font-medium"><%= user.email %></td>
+                      <td class="text-muted"><%= user.phone %></td>
+                      <td><span class="badge badge-secondary"><%= t("roles.#{user.role}") %></span></td>
+                      <td class="text-muted"><%= l(user.created_at.to_date, format: :default) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

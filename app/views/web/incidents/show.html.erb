@@ -1,0 +1,109 @@
+<div class="page-header">
+  <h1>Signalement</h1>
+  <%= link_to :back, class: "btn btn-ghost btn-sm" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+</div>
+
+<div class="grid grid-cols-6 gap-6">
+  <div class="col-span-4">
+    <div class="card mb-6">
+      <div class="card-header">
+        <span class="card-title"><%= @incident.title %></span>
+        <span class="badge <%= @incident.status == 'resolved' ? 'badge-success' : @incident.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
+          <%= @incident.status_label %>
+        </span>
+      </div>
+      <div class="card-content">
+        <p class="text-muted" style="white-space: pre-wrap;"><%= @incident.description %></p>
+
+        <hr class="my-4">
+
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="text-muted">Locataire</span>
+            <p class="font-medium"><%= link_to @incident.tenant.full_name, tenant_path(@incident.tenant), class: "text-link" %></p>
+            <p class="text-muted"><%= @incident.tenant.phone %></p>
+          </div>
+          <div>
+            <span class="text-muted">Appartement</span>
+            <p class="font-medium"><%= @incident.apartment.number %></p>
+            <p class="text-muted"><%= @incident.apartment.building.name %></p>
+          </div>
+          <div>
+            <span class="text-muted">Date du signalement</span>
+            <p class="font-medium"><%= l(@incident.created_at.to_date, format: :long) %></p>
+          </div>
+          <div>
+            <span class="text-muted">Prestataire assigné</span>
+            <p class="font-medium"><%= @incident.provider ? "#{@incident.provider.first_name} #{@incident.provider.last_name}" : "—" %></p>
+            <% if @incident.provider %>
+              <p class="text-muted"><%= @incident.provider.phone %> — <%= @incident.provider.trade %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-2">
+    <% if current_user.agence? %>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Statut</span></div>
+          <div class="card-content">
+            <%= form_tag incident_path(@incident), method: :patch do %>
+              <div class="mb-4">
+                <%= select_tag :status, options_for_select([['Ouvert', 'open'], ['En cours', 'in_progress'], ['Réparé', 'resolved']], @incident.status), class: "form-select" %>
+              </div>
+              <%= submit_tag "Mettre à jour", class: "btn btn-primary w-full" %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Assigner un prestataire</span></div>
+          <div class="card-content">
+            <%= form_tag incident_path(@incident), method: :patch do %>
+              <div class="mb-4">
+                <%= select_tag :provider_id, options_from_collection_for_select(@providers, :id, :full_name_with_trade, @incident.provider_id), prompt: "Aucun", class: "form-select" %>
+              </div>
+              <%= submit_tag "Assigner", class: "btn btn-primary w-full" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if current_user.tenant? %>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Statut</span></div>
+          <div class="card-content">
+            <%= form_tag incident_path(@incident), method: :patch do %>
+              <div class="mb-4">
+                <%= select_tag :status, options_for_select([['Ouvert', 'open'], ['En cours', 'in_progress'], ['Réparé', 'resolved']], @incident.status), class: "form-select" %>
+              </div>
+              <%= submit_tag "Mettre à jour", class: "btn btn-primary w-full" %>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @incident.provider %>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Prestataire assigné</span></div>
+            <div class="card-content">
+              <p class="font-medium"><%= @incident.provider.full_name %></p>
+              <p class="text-muted text-sm"><%= @incident.provider.trade %></p>
+              <p class="text-sm mt-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <%= @incident.provider.phone %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

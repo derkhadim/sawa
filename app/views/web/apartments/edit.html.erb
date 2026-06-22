@@ -1,0 +1,49 @@
+<div class="mb-6">
+  <%= link_to @apartment, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Modifier app. <%= @apartment.number %></h1>
+</div>
+
+<div class="card max-w-lg mx-auto">
+  <div class="card-content">
+    <%= form_for @apartment, html: { class: "space-y-4", multipart: true } do |f| %>
+      <div class="form-row">
+        <div class="space-y-2">
+          <%= f.label :number, class: "form-label" %>
+          <%= f.text_field :number, class: "form-input", required: true %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :floor, class: "form-label" %>
+          <%= f.number_field :floor, class: "form-input" %>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :rent_amount, class: "form-label" %>
+        <%= f.number_field :rent_amount, class: "form-input", required: true %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :status, class: "form-label" %>
+        <%= f.select :status, [["Libre", "free"], ["Occupé", "occupied"], ["En cours de réfection", "renovation"]], {}, class: "form-select" %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :photos, "Photos (max 4)", class: "form-label" %>
+        <%= f.file_field :photos, class: "form-input", accept: "image/*", multiple: true %>
+        <% if @apartment.photo_list.present? %>
+          <div class="flex gap-2 mt-2">
+            <% @apartment.photo_list.each do |url| %>
+              <div style="width: 72px; height: 72px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border);">
+                <img src="<%= url %>" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="form-actions">
+        <%= f.submit "Mettre à jour", class: "btn btn-primary" %>
+        <%= link_to "Annuler", @apartment, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

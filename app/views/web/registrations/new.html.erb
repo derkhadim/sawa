@@ -1,0 +1,76 @@
+<div class="login-page">
+  <div class="login-card" style="max-width: 28rem;">
+    <div class="card p-8">
+      <div class="login-header">
+        <div class="login-icon">🏠</div>
+        <h1>Créer un compte</h1>
+        <p class="text-muted">Rejoignez Sawa</p>
+      </div>
+
+      <script>
+        function toggleRoleFields(role) {
+          var isAgence = role === 'agence';
+          document.getElementById('agency-field').classList.toggle('hidden', !isAgence);
+          document.getElementById('name-fields').classList.toggle('hidden', isAgence);
+          document.getElementById('user_first_name').required = !isAgence;
+          document.getElementById('user_last_name').required = !isAgence;
+          document.getElementsByName('user[agency_name]')[0].required = isAgence;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          toggleRoleFields(document.getElementById('user_role').value);
+        });
+      </script>
+
+      <%= form_for @user, url: register_path, html: { class: "space-y-4" } do |f| %>
+        <div class="space-y-2">
+          <%= f.label :role, "Type de compte", class: "form-label" %>
+          <%= f.select :role, [["Locataire", "tenant"], ["Agence", "agence"], ["Propriétaire", "owner"]],
+                {}, class: "form-select", onchange: "toggleRoleFields(this.value)" %>
+        </div>
+
+        <div id="agency-field" class="space-y-2 hidden">
+          <label class="form-label">Nom de l'agence</label>
+          <input type="text" name="user[agency_name]" class="form-input" placeholder="Nom de votre agence">
+        </div>
+
+        <div id="name-fields" class="form-row">
+          <div class="space-y-2">
+            <%= f.label :first_name, "Prénom", class: "form-label" %>
+            <%= f.text_field :first_name, class: "form-input", required: true %>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :last_name, "Nom", class: "form-label" %>
+            <%= f.text_field :last_name, class: "form-input", required: true %>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :email, class: "form-label" %>
+          <%= f.email_field :email, class: "form-input", required: true %>
+        </div>
+
+        <div class="space-y-2">
+          <%= f.label :phone, "Téléphone", class: "form-label" %>
+          <%= f.telephone_field :phone, class: "form-input", required: true %>
+        </div>
+
+        <div class="form-row">
+          <div class="space-y-2">
+            <%= f.label :password, "Mot de passe", class: "form-label" %>
+            <%= f.password_field :password, class: "form-input", required: true %>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :password_confirmation, "Confirmation", class: "form-label" %>
+            <%= f.password_field :password_confirmation, class: "form-input", required: true %>
+          </div>
+        </div>
+
+        <%= f.submit "Créer mon compte", class: "btn btn-primary w-full", style: "justify-content: center;" %>
+      <% end %>
+
+      <div class="login-link">
+        Déjà inscrit ? <%= link_to "Se connecter", login_path %>
+      </div>
+    </div>
+  </div>
+</div>

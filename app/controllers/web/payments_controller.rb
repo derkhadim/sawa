@@ -1,0 +1,115 @@
+class Web::PaymentsController < Web::ApplicationController
+  def index
+    @apartment = Apartment.find(params[:apartment_id])
+    @payments = @apartment.payments.order(year: :desc, month: :desc)
+  end
+
+  def show
+    @payment = Payment.includes(apartment: :building).find(params[:id])
+    unless current_user.agence? || current_user.id == @payment.tenant_id
+      redirect_to root_path, alert: 'Accès refusé'
+    end
+  end
+
+  def new
+    @apartment = Apartment.find(params[:apartment_id])
+    @payment = @apartment.payments.new
+  end
+
+  def create
+    @apartment = Apartment.find(params[:apartment_id])
+
+    unless current_user.tenant? && current_user.id == @apartment.tenant_id
+      redirect_to @apartment, alert: 'Accès refusé'
+      return
+    end
+
+    month = Time.current.month
+    year = Time.current.year
+
+    @payment = @apartment.payments.find_or_initialize_by(month: month, year: year, tenant: current_user)
+
+    if @payment.status == 'paid'
+      redirect_to new_apartment_payment_path(@apartment), alert: 'Ce mois est déjà payé'
+      return
+    end
+
+    @payment.amount = @apartment.rent_amount
+    @payment.due_date = Payment.default_due_date(year, month)
+    @payment.reference = "PAY-#{year}#{format('%02d', month)}-#{@apartment.id}-#{current_user.id}"
+    @payment.status = 'submitted'
+    @payment.paid_at = nil
+
+    if params[:proof].present?
+      @payment.proof = save_proof(params[:proof])
+    end
+
+    if @payment.save
+      redirect_to dashboard_tenant_path, notice: 'Preuve de paiement envoyée. En attente de validation.'
+    else
+      flash.now[:alert] = @payment.errors.full_messages.join(', ')
+      render :new
+    end
+  end
+
+  def pending_validation
+    require_role(:agence)
+    agency = current_user.agency
+    apartment_ids = Apartment.where(building_id: agency.buildings.pluck(:id)).pluck(:id)
+    @submitted_payments = Payment.submitted
+                                 .where(apartment_id: apartment_ids)
+                                 .includes(:tenant, :apartment)
+                                 .order(created_at: :desc)
+  end
+
+  def agency_index
+    require_role(:agence)
+    agency = current_user.agency
+    building_ids = agency.buildings.pluck(:id)
+    apartment_ids = Apartment.where(building_id: building_ids).pluck(:id)
+
+    @q = params[:q]
+    @status = params[:status]
+    @building_id = params[:building_id]
+
+    @payments = Payment.where(apartment_id: apartment_ids)
+                       .includes(:tenant, apartment: :building)
+                       .order(year: :desc, month: :desc, created_at: :desc)
+
+    @payments = @payments.where(status: @status) if @status.present?
+    @payments = @payments.where(apartments: { building_id: @building_id }) if @building_id.present?
+
+    @buildings = agency.buildings.order(:name)
+  end
+
+  def validate
+    @payment = Payment.find(params[:id])
+
+    unless current_user.agence?
+      redirect_to root_path, alert: 'Accès refusé'
+      return
+    end
+
+    if @payment.update(status: 'paid', paid_at: Time.current)
+      redirect_back fallback_location: dashboard_path, notice: 'Paiement validé — quittance disponible'
+    else
+      redirect_back fallback_location: dashboard_path, alert: 'Erreur lors de la validation'
+    end
+  end
+
+  private
+
+  def save_proof(file)
+    ext = safe_extension(file.original_filename)
+    filename = "proof_#{Time.now.to_i}_#{SecureRandom.hex(4)}.#{ext}"
+    path = Rails.root.join('public', 'uploads', filename)
+    File.open(path, 'wb') { |f| f.write(file.read) }
+    "/uploads/#{filename}"
+  end
+
+  def safe_extension(filename)
+    ext = filename.split('.').last&.downcase
+    return 'jpg' unless ext && Payment::ALLOWED_PROOF_EXTENSIONS.include?(ext)
+    ext
+  end
+end

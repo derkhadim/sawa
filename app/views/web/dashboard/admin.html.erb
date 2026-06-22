@@ -1,0 +1,60 @@
+<div class="page-header">
+  <h1>Administration</h1>
+  <span class="badge badge-secondary">Super Admin</span>
+</div>
+
+<div class="grid grid-cols-4 gap-4 mb-8">
+  <div class="card stat-card">
+    <div class="stat-value"><%= @agencies.size %></div>
+    <div class="stat-label">Agences</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value"><%= @agencies_stats.sum { |s| s[:total_buildings] } %></div>
+    <div class="stat-label">Immeubles</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value text-primary"><%= @platform_recovery_rate %>%</div>
+    <div class="stat-label">Taux de recouvrement</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value" style="font-size: 1.25rem;">
+      <span class="text-primary"><%= number_to_currency(@total_platform_collected, unit: "", precision: 0) %> F</span>
+    </div>
+    <div class="stat-label">Total collecté</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Agences</span>
+  </div>
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Agence</th>
+            <th>Immeubles</th>
+            <th>Loyer attendu</th>
+            <th>Collecté</th>
+            <th>Taux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @agencies_stats.each do |s| %>
+            <tr>
+              <td class="font-medium"><%= s[:agency].name %></td>
+              <td class="text-muted"><%= s[:total_buildings] %></td>
+              <td><%= number_to_currency(s[:total_rent], unit: "", precision: 0) %></td>
+              <td class="text-primary font-medium"><%= number_to_currency(s[:total_collected], unit: "", precision: 0) %></td>
+              <td>
+                <% rate = s[:total_rent] > 0 ? (s[:total_collected] / s[:total_rent] * 100).round(2) : 0 %>
+                <span class="badge <%= rate >= 80 ? 'badge-success' : 'badge-warning' %>"><%= rate %>%</span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h1>Prestataires</h1>
+  <%= link_to "Ajouter un prestataire", new_provider_path, class: "btn btn-primary btn-sm" %>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <% if @providers.any? %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Prénom</th><th>Nom</th><th>Téléphone</th><th>Métier</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% @providers.each do |p| %>
+              <tr>
+                <td class="font-medium"><%= p.first_name %></td>
+                <td><%= p.last_name %></td>
+                <td class="text-muted"><%= p.phone %></td>
+                <td><span class="badge badge-primary"><%= p.trade.capitalize %></span></td>
+                <td>
+                  <div style="display: flex; gap: 4px;">
+                    <%= link_to "Modifier", edit_provider_path(p), class: "btn btn-ghost btn-xs" %>
+                    <%= button_to "Supprimer", provider_path(p), method: :delete, class: "btn btn-destructive btn-xs", onclick: "return confirm('Supprimer #{p.first_name} #{p.last_name} ?')" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3>Aucun prestataire</h3>
+        <p>Ajoutez vos prestataires (plombiers, électriciens, maçons, peintres...)</p>
+        <%= link_to "Ajouter un prestataire", new_provider_path, class: "btn btn-primary mt-4" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="login-page">
+  <div class="card" style="max-width: 28rem; width: 100%; text-align: center;">
+    <div class="card-content p-8">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+      <h2 class="mb-2">Paiement du loyer</h2>
+      <p class="text-muted text-sm mb-2">Payez via votre wallet mobile (Wave, Orange Money, etc.)</p>
+      <p class="text-muted text-sm mb-6">
+        Appartement <%= @apartment.number %> — <%= @apartment.building.name %>
+      </p>
+
+      <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem;">
+        <%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA/mois
+      </div>
+
+      <%= form_tag apartment_payments_path(@apartment), method: :post, multipart: true, class: "space-y-4" do %>
+        <%= hidden_field_tag :month, Time.current.month %>
+        <%= hidden_field_tag :year, Time.current.year %>
+        <p class="text-muted text-sm mb-4">Paiement pour <strong><%= t('date.month_names')[Time.current.month] %> <%= Time.current.year %></strong></p>
+
+        <div class="space-y-2 text-left">
+          <%= label_tag :proof, "Capture d'écran du paiement", class: "form-label" %>
+          <input type="file" name="proof" id="proof" accept="image/*" required class="form-input" onchange="document.getElementById('proof-preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('proof-preview').style.display='block'">
+          <img id="proof-preview" style="max-width: 100%; max-height: 200px; margin-top: 8px; border-radius: 8px; display: none;">
+        </div>
+
+        <%= submit_tag "Envoyer la preuve", class: "btn btn-primary btn-lg w-full", style: "justify-content: center;" %>
+      <% end %>
+
+      <div class="mt-4">
+        <%= link_to "Annuler", dashboard_tenant_path, class: "btn btn-ghost" %>
+      </div>
+    </div>
+  </div>
+</div>

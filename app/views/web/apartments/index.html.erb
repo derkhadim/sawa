@@ -1,0 +1,30 @@
+<div class="page-header">
+  <h1>Appartements — <%= @building.name %></h1>
+  <%= link_to @building, class: "btn btn-ghost btn-sm" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>N°</th><th>Étage</th><th>Loyer</th><th>Statut</th><th>Locataire</th></tr>
+        </thead>
+        <tbody>
+          <% @apartments.each do |a| %>
+            <tr>
+              <td class="font-medium"><%= link_to a.number, a, class: "no-underline text-inherit hover:text-primary" %></td>
+              <td class="text-muted"><%= a.floor || "—" %></td>
+              <td><%= number_to_currency(a.rent_amount, unit: "", precision: 0) %> F</td>
+              <td><span class="badge <%= a.occupied? ? 'badge-success' : 'badge-warning' %>"><%= a.occupied? ? 'Occupé' : 'Libre' %></span></td>
+              <td class="text-muted"><%= a.tenant&.full_name || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

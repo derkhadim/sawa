@@ -1,0 +1,32 @@
+<div class="page-header">
+  <h1>Paiements</h1>
+  <%= link_to @apartment, class: "btn btn-ghost btn-sm" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-content p-0">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Mois</th><th>Année</th><th>Montant</th><th>Échéance</th><th>Payé le</th><th>Référence</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+            <% @payments.each do |p| %>
+              <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
+                <td><%= t('date.month_names')[p.month] %></td>
+                <td class="text-muted"><%= p.year %></td>
+                <td class="font-medium"><%= number_to_currency(p.amount, unit: "", precision: 0) %> F</td>
+                <td class="text-muted"><%= l(p.due_date, format: :short) %></td>
+                <td class="text-muted"><%= l(p.paid_at.to_date, format: :short) if p.paid_at %></td>
+                <td class="text-xs text-muted"><%= p.reference %></td>
+                <td><span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>"><%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %></span></td>
+              </tr>
+            <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

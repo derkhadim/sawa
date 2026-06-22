@@ -1,0 +1,59 @@
+<div class="mb-6">
+  <%= link_to @building, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Modifier <%= @building.name %></h1>
+</div>
+
+<div class="card max-w-2xl mx-auto">
+  <div class="card-content">
+    <%= form_for @building, html: { class: "space-y-4" } do |f| %>
+      <div class="space-y-2">
+        <%= f.label :name, class: "form-label" %>
+        <%= f.text_field :name, class: "form-input", required: true %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :address, class: "form-label" %>
+        <%= f.text_field :address, class: "form-input", required: true %>
+      </div>
+      <div class="form-row">
+        <div class="space-y-2">
+          <%= f.label :neighborhood, class: "form-label" %>
+          <%= f.text_field :neighborhood, class: "form-input" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :commune, class: "form-label" %>
+          <%= f.text_field :commune, class: "form-input" %>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="space-y-2">
+          <%= f.label :latitude, class: "form-label" %>
+          <%= f.text_field :latitude, class: "form-input" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :longitude, class: "form-label" %>
+          <%= f.text_field :longitude, class: "form-input" %>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :owner_id, class: "form-label" %>
+        <%= f.collection_select :owner_id, @owners, :id, :full_name, { include_blank: "Aucun" }, class: "form-select" %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :photo, "Photo de l'immeuble", class: "form-label" %>
+        <%= f.file_field :photo, class: "form-input", accept: "image/*" %>
+        <% if @building.photo.present? %>
+          <div style="width: 120px; height: 80px; border-radius: var(--radius); overflow: hidden; margin-top: 0.5rem;">
+            <img src="<%= @building.photo_url %>" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+        <% end %>
+      </div>
+      <div class="form-actions">
+        <%= f.submit "Mettre à jour", class: "btn btn-primary" %>
+        <%= link_to "Annuler", @building, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
