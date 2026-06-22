@@ -13,6 +13,7 @@ Rails.application.configure do
 
   config.secret_key_base = ENV['SECRET_KEY_BASE']
 
-  config.hosts.clear
+  config.hosts << /.*\.up\.railway\.app/
 
+  
 end
