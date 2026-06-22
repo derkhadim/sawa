@@ -85,5 +85,14 @@ Thumbs.db
 # Ignore generated docs
 /doc
 
+# Ignore exported data
+/db/export.sql
+
+# Ignore local uploads
+/public/uploads/*
+
+# Ignore Render build script (Railway does not need it)
+/bin/render-build.sh
+
 # Ignore Docker overrides
 docker-compose.override.yml
