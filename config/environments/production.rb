@@ -14,6 +14,8 @@ Rails.application.configure do
   config.secret_key_base = ENV['SECRET_KEY_BASE']
 
   config.hosts << /.*\.up\.railway\.app/
+  config.hosts << ENV["RAILWAY_PUBLIC_DOMAIN"]
 
+  puts "Allowed hosts: #{Rails.application.config.hosts.inspect}"
   
 end
