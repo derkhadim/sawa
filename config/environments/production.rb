@@ -13,5 +13,7 @@ Rails.application.configure do
 
   config.secret_key_base = ENV['SECRET_KEY_BASE']
 
-  config.hosts << /.*\.up\.railway\.app/
+  # config.hosts << /.*\.up\.railway\.app/
+  config.hosts << "sawa-production-41b3.up.railway.app"
+
 end
