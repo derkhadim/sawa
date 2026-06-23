@@ -87,6 +87,7 @@ Thumbs.db
 
 # Ignore exported data
 /db/export.sql
+/db/import_data.sql
 
 # Ignore local uploads
 /public/uploads/*

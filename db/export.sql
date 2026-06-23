@@ -1,3 +1,135 @@
+CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE TABLE IF NOT EXISTS "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email" varchar NOT NULL, "phone" varchar NOT NULL, "password_digest" varchar NOT NULL, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "role" varchar DEFAULT 'tenant' NOT NULL, "agency_id" integer, "building_id" integer, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "profile_photo" varchar, "cover_photo" varchar, "rating" integer DEFAULT NULL, CONSTRAINT "fk_rails_627daf9bbe"
+FOREIGN KEY ("agency_id")
+  REFERENCES "agencies" ("id")
+, CONSTRAINT "fk_rails_6a7f33726f"
+FOREIGN KEY ("building_id")
+  REFERENCES "buildings" ("id")
+);
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE INDEX "index_users_on_agency_id" ON "users" ("agency_id");
+CREATE INDEX "index_users_on_building_id" ON "users" ("building_id");
+CREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email");
+CREATE UNIQUE INDEX "index_users_on_phone" ON "users" ("phone");
+CREATE TABLE IF NOT EXISTS "agencies" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "address" varchar, "phone" varchar, "email" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE TABLE IF NOT EXISTS "owners" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "phone" varchar, "email" varchar, "agency_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_1f35333df5"
+FOREIGN KEY ("agency_id")
+  REFERENCES "agencies" ("id")
+);
+CREATE INDEX "index_owners_on_agency_id" ON "owners" ("agency_id");
+CREATE TABLE IF NOT EXISTS "buildings" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "address" varchar NOT NULL, "neighborhood" varchar, "commune" varchar, "latitude" decimal(10,7), "longitude" decimal(10,7), "owner_id" integer NOT NULL, "agency_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "photo" varchar, CONSTRAINT "fk_rails_b8dfe07c9e"
+FOREIGN KEY ("owner_id")
+  REFERENCES "owners" ("id")
+, CONSTRAINT "fk_rails_235930fc52"
+FOREIGN KEY ("agency_id")
+  REFERENCES "agencies" ("id")
+);
+CREATE INDEX "index_buildings_on_owner_id" ON "buildings" ("owner_id");
+CREATE INDEX "index_buildings_on_agency_id" ON "buildings" ("agency_id");
+CREATE TABLE IF NOT EXISTS "apartments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "number" varchar NOT NULL, "floor" integer, "rent_amount" decimal(10,2) NOT NULL, "status" varchar DEFAULT 'free' NOT NULL, "building_id" integer NOT NULL, "tenant_id" integer, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "photos" text, "visible" boolean DEFAULT 0 NOT NULL, CONSTRAINT "fk_rails_9c46e85795"
+FOREIGN KEY ("building_id")
+  REFERENCES "buildings" ("id")
+, CONSTRAINT "fk_rails_9d72b77c1a"
+FOREIGN KEY ("tenant_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_apartments_on_building_id" ON "apartments" ("building_id");
+CREATE INDEX "index_apartments_on_tenant_id" ON "apartments" ("tenant_id");
+CREATE UNIQUE INDEX "index_apartments_on_building_id_and_number" ON "apartments" ("building_id", "number");
+CREATE TABLE IF NOT EXISTS "payments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "amount" decimal(10,2) NOT NULL, "paid_at" date, "due_date" date NOT NULL, "status" varchar DEFAULT 'pending' NOT NULL, "month" integer NOT NULL, "year" integer NOT NULL, "reference" varchar, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "proof" varchar, "payment_method" varchar DEFAULT NULL, CONSTRAINT "fk_rails_73a62ad939"
+FOREIGN KEY ("apartment_id")
+  REFERENCES "apartments" ("id")
+, CONSTRAINT "fk_rails_37fe743ccd"
+FOREIGN KEY ("tenant_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_payments_on_apartment_id" ON "payments" ("apartment_id");
+CREATE INDEX "index_payments_on_tenant_id" ON "payments" ("tenant_id");
+CREATE UNIQUE INDEX "index_payments_on_apartment_id_and_month_and_year" ON "payments" ("apartment_id", "month", "year");
+CREATE TABLE IF NOT EXISTS "publications" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "content" text NOT NULL, "building_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "likes_count" integer DEFAULT 0 NOT NULL, "comments_count" integer DEFAULT 0 NOT NULL, CONSTRAINT "fk_rails_8d10004933"
+FOREIGN KEY ("building_id")
+  REFERENCES "buildings" ("id")
+, CONSTRAINT "fk_rails_cf498aa521"
+FOREIGN KEY ("tenant_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_publications_on_building_id" ON "publications" ("building_id");
+CREATE INDEX "index_publications_on_tenant_id" ON "publications" ("tenant_id");
+CREATE TABLE IF NOT EXISTS "move_out_notices" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "move_out_date" date NOT NULL, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_538f86e910"
+FOREIGN KEY ("apartment_id")
+  REFERENCES "apartments" ("id")
+, CONSTRAINT "fk_rails_746c66b351"
+FOREIGN KEY ("tenant_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_move_out_notices_on_apartment_id" ON "move_out_notices" ("apartment_id");
+CREATE INDEX "index_move_out_notices_on_tenant_id" ON "move_out_notices" ("tenant_id");
+CREATE TABLE IF NOT EXISTS "likes" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "publication_id" integer NOT NULL, "user_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c5db1cc33f"
+FOREIGN KEY ("publication_id")
+  REFERENCES "publications" ("id")
+, CONSTRAINT "fk_rails_1e09b5dabf"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_likes_on_publication_id" ON "likes" ("publication_id");
+CREATE INDEX "index_likes_on_user_id" ON "likes" ("user_id");
+CREATE UNIQUE INDEX "index_likes_on_publication_id_and_user_id" ON "likes" ("publication_id", "user_id");
+CREATE TABLE IF NOT EXISTS "comments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "publication_id" integer NOT NULL, "user_id" integer NOT NULL, "content" text NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_6be1db031f"
+FOREIGN KEY ("publication_id")
+  REFERENCES "publications" ("id")
+, CONSTRAINT "fk_rails_03de2dc08c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+);
+CREATE INDEX "index_comments_on_publication_id" ON "comments" ("publication_id");
+CREATE INDEX "index_comments_on_user_id" ON "comments" ("user_id");
+CREATE TABLE IF NOT EXISTS "providers" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "phone" varchar NOT NULL, "trade" varchar NOT NULL, "agency_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c8e9781280"
+FOREIGN KEY ("agency_id")
+  REFERENCES "agencies" ("id")
+);
+CREATE INDEX "index_providers_on_agency_id" ON "providers" ("agency_id");
+CREATE TABLE IF NOT EXISTS "incidents" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar NOT NULL, "description" text NOT NULL, "status" varchar DEFAULT 'open' NOT NULL, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "provider_id" integer, CONSTRAINT "fk_rails_6e72ca0e49"
+FOREIGN KEY ("tenant_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_a51d50c7bc"
+FOREIGN KEY ("apartment_id")
+  REFERENCES "apartments" ("id")
+, CONSTRAINT "fk_rails_aee7a62715"
+FOREIGN KEY ("provider_id")
+  REFERENCES "providers" ("id")
+);
+CREATE INDEX "index_incidents_on_apartment_id" ON "incidents" ("apartment_id");
+CREATE INDEX "index_incidents_on_tenant_id" ON "incidents" ("tenant_id");
+CREATE INDEX "index_incidents_on_provider_id" ON "incidents" ("provider_id");
+CREATE TABLE IF NOT EXISTS "permissions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "resource" varchar NOT NULL, "action" varchar NOT NULL, "description" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE UNIQUE INDEX "index_permissions_on_resource_and_action" ON "permissions" ("resource", "action");
+CREATE TABLE IF NOT EXISTS "roles" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "agency_id" integer, "description" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_1fc3d10048"
+FOREIGN KEY ("agency_id")
+  REFERENCES "agencies" ("id")
+);
+CREATE INDEX "index_roles_on_agency_id" ON "roles" ("agency_id");
+CREATE UNIQUE INDEX "index_roles_on_name_and_agency_id" ON "roles" ("name", "agency_id");
+CREATE TABLE IF NOT EXISTS "role_permissions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "role_id" integer NOT NULL, "permission_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_60126080bd"
+FOREIGN KEY ("role_id")
+  REFERENCES "roles" ("id")
+, CONSTRAINT "fk_rails_439e640a3f"
+FOREIGN KEY ("permission_id")
+  REFERENCES "permissions" ("id")
+);
+CREATE INDEX "index_role_permissions_on_role_id" ON "role_permissions" ("role_id");
+CREATE INDEX "index_role_permissions_on_permission_id" ON "role_permissions" ("permission_id");
+CREATE UNIQUE INDEX "index_role_permissions_on_role_id_and_permission_id" ON "role_permissions" ("role_id", "permission_id");
+CREATE TABLE IF NOT EXISTS "user_roles" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "role_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_318345354e"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_3369e0d5fc"
+FOREIGN KEY ("role_id")
+  REFERENCES "roles" ("id")
+);
+CREATE INDEX "index_user_roles_on_user_id" ON "user_roles" ("user_id");
+CREATE INDEX "index_user_roles_on_role_id" ON "user_roles" ("role_id");
+CREATE UNIQUE INDEX "index_user_roles_on_user_id_and_role_id" ON "user_roles" ("user_id", "role_id");
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
