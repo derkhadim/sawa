@@ -13,7 +13,7 @@ Rails.application.configure do
 
   config.secret_key_base = ENV['SECRET_KEY_BASE']
 
-  config.hosts << ENV["RAILWAY_PUBLIC_DOMAIN"] if ENV["RAILWAY_PUBLIC_DOMAIN"].present?
   # config.hosts << /.*\.up\.railway\.app/
+  config.hosts.clear
 
 end
