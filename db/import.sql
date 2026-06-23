@@ -1,37 +1,4 @@
-
 BEGIN;
-CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
-INSERT INTO schema_migrations VALUES('20260101000001');
-INSERT INTO schema_migrations VALUES('20260101000002');
-INSERT INTO schema_migrations VALUES('20260101000003');
-INSERT INTO schema_migrations VALUES('20260101000004');
-INSERT INTO schema_migrations VALUES('20260101000005');
-INSERT INTO schema_migrations VALUES('20260101000006');
-INSERT INTO schema_migrations VALUES('20260101000007');
-INSERT INTO schema_migrations VALUES('20260101000008');
-INSERT INTO schema_migrations VALUES('20260101000009');
-INSERT INTO schema_migrations VALUES('20260618200003');
-INSERT INTO schema_migrations VALUES('20260618221657');
-INSERT INTO schema_migrations VALUES('20260618221658');
-INSERT INTO schema_migrations VALUES('20260618221722');
-INSERT INTO schema_migrations VALUES('20260620062702');
-INSERT INTO schema_migrations VALUES('20260620130000');
-INSERT INTO schema_migrations VALUES('20260620130001');
-INSERT INTO schema_migrations VALUES('20260620130002');
-INSERT INTO schema_migrations VALUES('20260620140000');
-INSERT INTO schema_migrations VALUES('20260620150000');
-INSERT INTO schema_migrations VALUES('20260620160000');
-INSERT INTO schema_migrations VALUES('20260620170000');
-INSERT INTO schema_migrations VALUES('20260620180000');
-INSERT INTO schema_migrations VALUES('20260620190000');
-INSERT INTO schema_migrations VALUES('20260620200000');
-INSERT INTO schema_migrations VALUES('20260622000000');
-INSERT INTO schema_migrations VALUES('20260622000001');
-CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL);
-INSERT INTO ar_internal_metadata VALUES('environment','production','2026-06-18 15:58:17.980639','2026-06-18 15:58:17.980641');
-CREATE TABLE IF NOT EXISTS "users" ("id" bigserial PRIMARY KEY, "email" varchar NOT NULL, "phone" varchar NOT NULL, "password_digest" varchar NOT NULL, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "role" varchar DEFAULT 'tenant' NOT NULL, "agency_id" integer, "building_id" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "profile_photo" varchar, "cover_photo" varchar, "rating" integer DEFAULT NULL
-
-);
 INSERT INTO users VALUES(151,'admin@loca.com','+221770000003','$2a$12$ipGZRq.z8ZsHafI13nYMTuGMAHXmVTf9wrVi/7oJEI/giKf9ziaHm','Super','Admin','super_admin',NULL,NULL,'2026-06-18 21:47:32.897717','2026-06-18 21:47:32.897717',NULL,NULL,NULL);
 INSERT INTO users VALUES(152,'agent@loca.com','+221770000006','$2a$12$OkUcI9kG0jW8JCV4KNuk1edCxa2B3Ey/NdRszXIEtdLECvbj5NTHW','Agent','Principal','agence',12,NULL,'2026-06-18 21:47:33.124308','2026-06-18 21:47:33.124308',NULL,NULL,NULL);
 INSERT INTO users VALUES(153,'agent2@loca.com','+221770000007','$2a$12$1KrqQJQb/9pRpOhw0Qz2ieCTSFxFjlwpOcOdq97q2ibTtDddSnSaO','Agent','Sene','agence',13,NULL,'2026-06-18 21:47:33.327255','2026-06-18 21:47:33.327255',NULL,NULL,NULL);
@@ -161,12 +128,9 @@ INSERT INTO users VALUES(276,'test-assign@loca.com','+221771111111','$2a$12$WK5f
 INSERT INTO users VALUES(277,'lom@mail.com','769332248','$2a$12$Z7TyZg35Lj85CCkeFpT7u.cAybk7r.NfUJ/SrNf7yhEHJQi4Ycol6','Malick','Lo','tenant',NULL,NULL,'2026-06-19 07:42:00.577829','2026-06-22 08:49:53.470453',NULL,NULL,1);
 INSERT INTO users VALUES(278,'thomas.vincent@mail.com','+221770000008','$2a$12$Sjc1AGSRQmjPaMvZV0wTu.IYo/QOqdBsboaVzRcxSpGBddSdWJr0W','Thomas','Vincent','owner',NULL,NULL,'2026-06-19 15:44:11.433701','2026-06-20 16:24:48.017824',NULL,NULL,NULL);
 INSERT INTO users VALUES(279,'immoder@mail.com','766217518','$2a$12$onsuZOJHk9oXFapbH5WOQuzIwKOb7Q3MVzddKauC6U.JY8IChO5I6','','','agence',14,NULL,'2026-06-19 20:15:20.846830','2026-06-19 20:15:20.846830',NULL,NULL,NULL);
-CREATE TABLE IF NOT EXISTS "agencies" ("id" bigserial PRIMARY KEY, "name" varchar NOT NULL, "address" varchar, "phone" varchar, "email" varchar, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL);
 INSERT INTO agencies VALUES(12,'Agence Immobilière Dakar','123 Rue Principale, Dakar','+221770000004','contact@agence-dakar.com','2026-06-18 21:47:32.901287','2026-06-18 21:47:32.901287');
 INSERT INTO agencies VALUES(13,'Groupe Patrimoine Sénégal','67 Boulevard de la République, Dakar','+221770000005','contact@groupe-patrimoine.sn','2026-06-18 21:47:32.902893','2026-06-18 21:47:32.902893');
 INSERT INTO agencies VALUES(14,'Der Immo',NULL,NULL,NULL,'2026-06-19 20:15:20.842361','2026-06-19 20:15:20.842361');
-CREATE TABLE IF NOT EXISTS "owners" ("id" bigserial PRIMARY KEY, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "phone" varchar, "email" varchar, "agency_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-);
 INSERT INTO owners VALUES(11,'Mass','Mboup','+221770000008','thomas.vincent@mail.com',12,'2026-06-18 21:47:33.446500','2026-06-19 15:46:47.282570');
 INSERT INTO owners VALUES(12,'Clarence','Clement','+221770000029','mignon@kihn-connelly.test',12,'2026-06-18 21:47:37.690441','2026-06-18 21:47:37.690441');
 INSERT INTO owners VALUES(13,'Alphonsine','Michel','+221770000050','brad_leffler@breitenberg-bernhard.example',12,'2026-06-18 21:47:41.870915','2026-06-18 21:47:41.870915');
@@ -174,9 +138,6 @@ INSERT INTO owners VALUES(14,'Pulchérie','Guichard','+221770000071','terrence@q
 INSERT INTO owners VALUES(15,'Théophile','Mercier','+221770000092','randal@lemke.example',13,'2026-06-18 21:47:50.009388','2026-06-18 21:47:50.009388');
 INSERT INTO owners VALUES(16,'Arielle','Simon','+221770000113','martin@wolf-walsh.test',13,'2026-06-18 21:47:54.048343','2026-06-18 21:47:54.048343');
 INSERT INTO owners VALUES(17,'Mouhamadou','Der','779164239','dermouhamadou@gmail.com',12,'2026-06-20 08:03:26.805275','2026-06-20 08:03:26.805275');
-CREATE TABLE IF NOT EXISTS "buildings" ("id" bigserial PRIMARY KEY, "name" varchar NOT NULL, "address" varchar NOT NULL, "neighborhood" varchar, "commune" varchar, "latitude" decimal(10,7), "longitude" decimal(10,7), "owner_id" integer NOT NULL, "agency_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "photo" varchar
-
-);
 INSERT INTO buildings VALUES(11,'Résidence Les Cocotiers','45 Avenue de la République','Fann','Dakar',14.65955259999999961,-17.40552410000000094,11,12,'2026-06-18 21:47:33.451620','2026-06-18 21:47:33.451620',NULL);
 INSERT INTO buildings VALUES(12,'Villa Oasis','12 Rue des Manguiers','Sicap','Dakar',14.71850350000000062,-17.42524099999999976,12,12,'2026-06-18 21:47:37.691620','2026-06-18 21:47:37.691620',NULL);
 INSERT INTO buildings VALUES(13,'Immeuble Le Rayon','8 Boulevard du Sud','Mermoz','Dakar',14.69452700000000078,-17.47948969999999846,13,12,'2026-06-18 21:47:41.872093','2026-06-18 21:47:41.872093',NULL);
@@ -185,9 +146,6 @@ INSERT INTO buildings VALUES(15,'Cité Baobab','55 Avenue Cheikh Anta Diop','Oua
 INSERT INTO buildings VALUES(16,'Résidence Les Hibiscus','3 Rue de la Plage','Ngor','Dakar',14.73007950000000043,-17.47599710000000072,16,13,'2026-06-18 21:47:54.049602','2026-06-18 21:47:54.049602',NULL);
 INSERT INTO buildings VALUES(17,'Immeuble Habibou Ly','Hann Maristes 1 I/lot G63','Hann Masriste','Bel Air',NULL,NULL,11,12,'2026-06-19 15:48:42.170019','2026-06-19 15:48:42.170019',NULL);
 INSERT INTO buildings VALUES(18,'Espoir','Diass','Diass Village','Diass commune',NULL,NULL,17,12,'2026-06-20 08:04:04.931811','2026-06-20 08:04:04.931811',NULL);
-CREATE TABLE IF NOT EXISTS "apartments" ("id" bigserial PRIMARY KEY, "number" varchar NOT NULL, "floor" integer, "rent_amount" decimal(10,2) NOT NULL, "status" varchar DEFAULT 'free' NOT NULL, "building_id" integer NOT NULL, "tenant_id" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "photos" text, "visible" boolean DEFAULT false NOT NULL
-
-);
 INSERT INTO apartments VALUES(145,'101',1,120000,'occupied',11,154,'2026-06-18 21:47:33.668607','2026-06-18 21:47:33.668607',NULL,0);
 INSERT INTO apartments VALUES(146,'102',1,250000,'occupied',11,155,'2026-06-18 21:47:33.876466','2026-06-18 21:47:33.876466',NULL,0);
 INSERT INTO apartments VALUES(147,'103',1,150000,'occupied',11,156,'2026-06-18 21:47:34.090896','2026-06-18 21:47:34.090896',NULL,0);
@@ -319,9 +277,6 @@ INSERT INTO apartments VALUES(272,'2 RDC',0,120000,'free',17,NULL,'2026-06-19 15
 INSERT INTO apartments VALUES(273,'3',1,200000,'free',17,NULL,'2026-06-19 15:49:43.953867','2026-06-19 15:49:43.953867',NULL,0);
 INSERT INTO apartments VALUES(274,'A',0,90000,'free',18,NULL,'2026-06-20 08:04:36.600319','2026-06-20 08:04:36.600319',NULL,0);
 INSERT INTO apartments VALUES(275,'B',0,100000,'free',18,NULL,'2026-06-20 08:04:46.319911','2026-06-20 08:04:46.319911',NULL,0);
-CREATE TABLE IF NOT EXISTS "payments" ("id" bigserial PRIMARY KEY, "amount" decimal(10,2) NOT NULL, "paid_at" date, "due_date" date NOT NULL, "status" varchar DEFAULT 'pending' NOT NULL, "month" integer NOT NULL, "year" integer NOT NULL, "reference" varchar, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "proof" varchar, "payment_method" varchar DEFAULT NULL
-
-);
 INSERT INTO payments VALUES(136,120000,'2026-06-21','2026-06-12','paid',6,2026,'PAY-202606-145-154',145,154,'2026-06-18 21:47:33.673322','2026-06-21 07:05:24.079175','/uploads/proof_1782025473_8ab7c0a4.jpeg',NULL);
 INSERT INTO payments VALUES(137,250000,'2026-06-21','2026-06-12','paid',6,2026,'PAY-202606-146-155',146,155,'2026-06-18 21:47:33.877506','2026-06-21 07:54:19.533171','/uploads/proof_1782027598_ca82154b.jpeg',NULL);
 INSERT INTO payments VALUES(138,150000,'2026-06-22','2026-06-12','paid',6,2026,NULL,147,156,'2026-06-18 21:47:34.092023','2026-06-22 09:49:33.712775',NULL,'cash');
@@ -443,93 +398,18 @@ INSERT INTO payments VALUES(253,250000,NULL,'2026-06-12','pending',6,2026,NULL,2
 INSERT INTO payments VALUES(254,120000,NULL,'2026-06-12','late',6,2026,NULL,268,272,'2026-06-18 21:47:58.110969','2026-06-18 21:47:58.110969',NULL,NULL);
 INSERT INTO payments VALUES(255,150000,NULL,'2026-06-12','pending',6,2026,NULL,269,273,'2026-06-18 21:47:58.316660','2026-06-18 21:47:58.316660',NULL,NULL);
 INSERT INTO payments VALUES(256,300000,'2026-06-18','2026-06-12','paid',6,2026,'PAY-202606-207-275',207,275,'2026-06-18 21:55:01.741905','2026-06-18 22:23:18.609858',NULL,NULL);
-CREATE TABLE IF NOT EXISTS "publications" ("id" bigserial PRIMARY KEY, "content" text NOT NULL, "building_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "likes_count" integer DEFAULT 0 NOT NULL, "comments_count" integer DEFAULT 0 NOT NULL
-
-);
 INSERT INTO publications VALUES(3,unistr('Bonjour, je m''appelle Der, je suis votre nouveau voisin.\u000d\u000aBonne journée'),13,275,'2026-06-18 22:15:30.867565','2026-06-18 22:15:30.867565',1,1);
 INSERT INTO publications VALUES(4,'Hello les voisins',12,277,'2026-06-19 07:42:49.315938','2026-06-19 07:42:49.315938',1,0);
 INSERT INTO publications VALUES(5,'Merçi de vérifier vos salles de bain',12,152,'2026-06-19 07:53:31.152969','2026-06-19 07:53:31.152969',0,0);
-CREATE TABLE IF NOT EXISTS "move_out_notices" ("id" bigserial PRIMARY KEY, "move_out_date" date NOT NULL, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-
-);
 INSERT INTO move_out_notices VALUES(1,'2026-07-23',207,275,'2026-06-18 22:22:49.435307','2026-06-18 22:22:49.435307');
-CREATE TABLE IF NOT EXISTS "likes" ("id" bigserial PRIMARY KEY, "publication_id" integer NOT NULL, "user_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-
-);
 INSERT INTO likes VALUES(1,3,152,'2026-06-18 22:21:57.057254','2026-06-18 22:21:57.057254');
 INSERT INTO likes VALUES(2,4,152,'2026-06-19 07:44:00.797299','2026-06-19 07:44:00.797299');
-CREATE TABLE IF NOT EXISTS "comments" ("id" bigserial PRIMARY KEY, "publication_id" integer NOT NULL, "user_id" integer NOT NULL, "content" text NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-
-);
 INSERT INTO comments VALUES(1,3,152,'Bon arrivé M. Der','2026-06-18 22:22:18.311618','2026-06-18 22:22:18.311618');
-CREATE TABLE IF NOT EXISTS "providers" ("id" bigserial PRIMARY KEY, "first_name" varchar NOT NULL, "last_name" varchar NOT NULL, "phone" varchar NOT NULL, "trade" varchar NOT NULL, "agency_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-);
 INSERT INTO providers VALUES(1,'Babacar','Ndao','771234567','plombier',12,'2026-06-20 20:29:27.125105','2026-06-20 20:29:27.125105');
-CREATE TABLE IF NOT EXISTS "incidents" ("id" bigserial PRIMARY KEY, "title" varchar NOT NULL, "description" text NOT NULL, "status" varchar DEFAULT 'open' NOT NULL, "apartment_id" integer NOT NULL, "tenant_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "provider_id" integer
-
-
-);
 INSERT INTO incidents VALUES(2,'Cuisine','Il n''y a pas de placard dans la cuisne','resolved',207,275,'2026-06-18 22:24:59.806723','2026-06-20 20:11:36.639625',NULL);
 INSERT INTO incidents VALUES(3,'Fenêtres','La fenetre de la cuisin est défectueuse','open',166,277,'2026-06-19 07:43:33.063580','2026-06-19 07:43:33.063580',NULL);
 INSERT INTO incidents VALUES(4,'Surpresseur','Le surpresseur est défectueux','in_progress',207,275,'2026-06-20 20:07:40.128866','2026-06-20 21:13:06.299500',1);
-CREATE TABLE IF NOT EXISTS "permissions" ("id" bigserial PRIMARY KEY, "resource" varchar NOT NULL, "action" varchar NOT NULL, "description" varchar, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL);
-CREATE TABLE IF NOT EXISTS "roles" ("id" bigserial PRIMARY KEY, "name" varchar NOT NULL, "agency_id" integer, "description" varchar, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-);
 INSERT INTO roles VALUES(1,'Agent recouvrement',12,'Charger de ....','2026-06-21 09:20:59.525666','2026-06-21 09:20:59.525666');
 INSERT INTO roles VALUES(2,'Superviseur',12,'','2026-06-21 09:21:14.949937','2026-06-21 09:21:14.949937');
 INSERT INTO roles VALUES(3,'Manager',12,'','2026-06-21 09:30:20.398510','2026-06-21 09:30:20.398510');
-CREATE TABLE IF NOT EXISTS "role_permissions" ("id" bigserial PRIMARY KEY, "role_id" integer NOT NULL, "permission_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-
-);
-CREATE TABLE IF NOT EXISTS "user_roles" ("id" bigserial PRIMARY KEY, "user_id" integer NOT NULL, "role_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL
-
-);
-INSERT INTO sqlite_sequence VALUES('users',279);
-INSERT INTO sqlite_sequence VALUES('agencies',14);
-INSERT INTO sqlite_sequence VALUES('owners',17);
-INSERT INTO sqlite_sequence VALUES('buildings',18);
-INSERT INTO sqlite_sequence VALUES('apartments',275);
-INSERT INTO sqlite_sequence VALUES('payments',256);
-INSERT INTO sqlite_sequence VALUES('publications',5);
-INSERT INTO sqlite_sequence VALUES('likes',2);
-INSERT INTO sqlite_sequence VALUES('comments',1);
-INSERT INTO sqlite_sequence VALUES('move_out_notices',1);
-INSERT INTO sqlite_sequence VALUES('providers',1);
-INSERT INTO sqlite_sequence VALUES('incidents',4);
-INSERT INTO sqlite_sequence VALUES('roles',3);
-CREATE INDEX "index_users_on_agency_id" ON "users" ("agency_id");
-CREATE INDEX "index_users_on_building_id" ON "users" ("building_id");
-CREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email");
-CREATE UNIQUE INDEX "index_users_on_phone" ON "users" ("phone");
-CREATE INDEX "index_owners_on_agency_id" ON "owners" ("agency_id");
-CREATE INDEX "index_buildings_on_owner_id" ON "buildings" ("owner_id");
-CREATE INDEX "index_buildings_on_agency_id" ON "buildings" ("agency_id");
-CREATE INDEX "index_apartments_on_building_id" ON "apartments" ("building_id");
-CREATE INDEX "index_apartments_on_tenant_id" ON "apartments" ("tenant_id");
-CREATE UNIQUE INDEX "index_apartments_on_building_id_and_number" ON "apartments" ("building_id", "number");
-CREATE INDEX "index_payments_on_apartment_id" ON "payments" ("apartment_id");
-CREATE INDEX "index_payments_on_tenant_id" ON "payments" ("tenant_id");
-CREATE UNIQUE INDEX "index_payments_on_apartment_id_and_month_and_year" ON "payments" ("apartment_id", "month", "year");
-CREATE INDEX "index_publications_on_building_id" ON "publications" ("building_id");
-CREATE INDEX "index_publications_on_tenant_id" ON "publications" ("tenant_id");
-CREATE INDEX "index_move_out_notices_on_apartment_id" ON "move_out_notices" ("apartment_id");
-CREATE INDEX "index_move_out_notices_on_tenant_id" ON "move_out_notices" ("tenant_id");
-CREATE INDEX "index_likes_on_publication_id" ON "likes" ("publication_id");
-CREATE INDEX "index_likes_on_user_id" ON "likes" ("user_id");
-CREATE UNIQUE INDEX "index_likes_on_publication_id_and_user_id" ON "likes" ("publication_id", "user_id");
-CREATE INDEX "index_comments_on_publication_id" ON "comments" ("publication_id");
-CREATE INDEX "index_comments_on_user_id" ON "comments" ("user_id");
-CREATE INDEX "index_providers_on_agency_id" ON "providers" ("agency_id");
-CREATE INDEX "index_incidents_on_apartment_id" ON "incidents" ("apartment_id");
-CREATE INDEX "index_incidents_on_tenant_id" ON "incidents" ("tenant_id");
-CREATE INDEX "index_incidents_on_provider_id" ON "incidents" ("provider_id");
-CREATE UNIQUE INDEX "index_permissions_on_resource_and_action" ON "permissions" ("resource", "action");
-CREATE INDEX "index_roles_on_agency_id" ON "roles" ("agency_id");
-CREATE UNIQUE INDEX "index_roles_on_name_and_agency_id" ON "roles" ("name", "agency_id");
-CREATE INDEX "index_role_permissions_on_role_id" ON "role_permissions" ("role_id");
-CREATE INDEX "index_role_permissions_on_permission_id" ON "role_permissions" ("permission_id");
-CREATE UNIQUE INDEX "index_role_permissions_on_role_id_and_permission_id" ON "role_permissions" ("role_id", "permission_id");
-CREATE INDEX "index_user_roles_on_user_id" ON "user_roles" ("user_id");
-CREATE INDEX "index_user_roles_on_role_id" ON "user_roles" ("role_id");
-CREATE UNIQUE INDEX "index_user_roles_on_user_id_and_role_id" ON "user_roles" ("user_id", "role_id");
 COMMIT;
