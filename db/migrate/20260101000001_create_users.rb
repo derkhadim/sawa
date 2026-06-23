@@ -9,8 +9,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string :role,            null: false, default: 'tenant'
       # role: super_admin, agent, tenant, owner
 
-      t.references :agency, foreign_key: true
-      t.references :building, foreign_key: true
+      t.references :agency, foreign_key: false
+      t.references :building, foreign_key: false
 
       t.timestamps
     end
