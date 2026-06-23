@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sawa — Gestion Immobilière</title>
   <%= stylesheet_link_tag "tailwind", "application" %>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll(".table-container table").forEach(function(table) {
+        var headers = [];
+        table.querySelectorAll("thead th").forEach(function(th) {
+          headers.push(th.textContent.trim());
+        });
+        if (headers.length === 0) return;
+        table.querySelectorAll("tbody tr").forEach(function(tr) {
+          tr.querySelectorAll("td").forEach(function(td, i) {
+            if (i < headers.length && !td.hasAttribute("data-label")) {
+              td.setAttribute("data-label", headers[i]);
+            }
+          });
+        });
+      });
+    });
+  </script>
 </head>
 <body>
   <nav class="navbar">
