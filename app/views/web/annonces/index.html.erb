@@ -4,7 +4,7 @@
 </div>
 
 <% if @apartments.any? %>
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <% @apartments.each do |apt| %>
       <%= link_to annonce_path(apt), class: "card no-underline text-inherit hover:shadow-sm transition-shadow p-0", style: "transition: box-shadow 0.15s;" do %>
         <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; background: #f3f4f6; border-radius: var(--radius) var(--radius) 0 0;">
