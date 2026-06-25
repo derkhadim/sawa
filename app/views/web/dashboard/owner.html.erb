@@ -1,6 +1,12 @@
 <div class="page-header">
   <h1>Mon patrimoine</h1>
   <span class="badge badge-secondary"><%= Date.current.strftime("%B %Y") %></span>
+  <% if @agency_user %>
+    <%= button_to conversations_path, params: { user_id: @agency_user.id }, method: :post, class: "btn btn-primary btn-sm", form_class: "inline", style: "margin-left: auto;" do %>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Contacter l'agence
+    <% end %>
+  <% end %>
 </div>
 
 <div class="grid grid-cols-4 gap-4 mb-8">

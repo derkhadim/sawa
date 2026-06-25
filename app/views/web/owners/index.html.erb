@@ -20,7 +20,14 @@
                 <td class="font-medium"><%= o.full_name %></td>
                 <td class="text-muted"><%= o.phone || "—" %></td>
                 <td class="text-muted"><%= o.email || "—" %></td>
-                <td><%= link_to "Modifier", edit_owner_path(o), class: "btn btn-ghost btn-sm" %></td>
+                <td class="flex gap-2">
+                  <% if (owner_user = User.find_by(email: o.email)) %>
+                    <%= button_to conversations_path, params: { user_id: owner_user.id }, method: :post, class: "btn btn-ghost btn-sm", form_class: "inline" do %>
+                      Contacter
+                    <% end %>
+                  <% end %>
+                  <%= link_to "Modifier", edit_owner_path(o), class: "btn btn-ghost btn-sm" %>
+                </td>
               </tr>
             <% end %>
           </tbody>

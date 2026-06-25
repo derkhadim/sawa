@@ -46,6 +46,10 @@ Rails.application.routes.draw do
       get 'dashboard/admin', to: 'dashboard#admin'
       get 'dashboard/tenant', to: 'dashboard#tenant'
       get 'dashboard/owner', to: 'dashboard#owner'
+
+      resources :conversations, only: [:index, :create, :show] do
+        resources :messages, only: [:index, :create]
+      end
     end
   end
 
@@ -110,4 +114,8 @@ Rails.application.routes.draw do
   get  'profil',      to: 'web/profiles#show', as: :profile
   get  'profil/edit', to: 'web/profiles#edit', as: :edit_profile
   patch 'profil',     to: 'web/profiles#update'
+
+  resources :conversations, controller: 'web/conversations', only: [:index, :create, :show] do
+    resources :messages, controller: 'web/messages', only: [:create]
+  end
 end

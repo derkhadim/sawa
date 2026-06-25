@@ -4,6 +4,10 @@
     Retour
   <% end %>
   <h1><%= @tenant.full_name %></h1>
+  <%= button_to conversations_path, params: { user_id: @tenant.id }, method: :post, class: "btn btn-primary btn-sm", form_class: "inline" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Contacter
+  <% end %>
 </div>
 
 <div class="grid grid-cols-2 gap-4 mb-6">

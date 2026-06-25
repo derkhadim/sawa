@@ -1,0 +1,42 @@
+<div class="page-header">
+  <h1>
+    <%= link_to conversations_path, class: "no-underline text-inherit hover:text-primary mr-2" do %>
+      ←
+    <% end %>
+    <%= @other&.full_name || 'Conversation' %>
+  </h1>
+  <span class="badge badge-secondary"><%= @other&.role&.capitalize || '' %></span>
+</div>
+
+<div class="card mb-4" style="max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column;">
+  <div class="card-content" style="flex: 1;">
+    <% if @messages.any? %>
+      <div class="space-y-3">
+        <% @messages.each do |m| %>
+          <div class="flex <%= m.sender_id == current_user.id ? 'justify-end' : 'justify-start' %>">
+            <div style="max-width: 75%; <%= m.sender_id == current_user.id ? 'background: var(--primary); color: var(--primary-foreground);' : 'background: var(--muted);' %> border-radius: 14px; padding: 0.625rem 0.875rem;">
+              <p style="margin: 0; font-size: 0.875rem; line-height: 1.4;"><%= m.body %></p>
+              <p style="margin: 0; font-size: 0.6875rem; opacity: 0.7; margin-top: 0.25rem; text-align: right;">
+                <%= l(m.created_at, format: :short) %>
+                <% if m.read_at && m.sender_id == current_user.id %>
+                  · Lu
+                <% end %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">💬</div>
+        <h3>Aucun message</h3>
+        <p>Envoyez le premier message</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= form_with model: [@conversation, Message.new], local: true, class: "flex gap-3" do |f| %>
+  <%= f.text_area :body, placeholder: "Votre message...", class: "form-textarea", style: "flex: 1; min-height: 2.5rem; max-height: 6rem; padding: 0.625rem 0.875rem;", rows: 1, required: true %>
+  <%= f.submit "Envoyer", class: "btn btn-primary", style: "align-self: flex-end; padding: 0.625rem 1.5rem;" %>
+<% end %>

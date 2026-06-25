@@ -104,5 +104,7 @@ class Web::DashboardController < Web::ApplicationController
                                 .includes(:apartment)
                                 .order(created_at: :desc)
                                 .limit(20)
+
+    @agency_user = @buildings.first&.agency&.users&.first
   end
 end

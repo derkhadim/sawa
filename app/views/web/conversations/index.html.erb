@@ -1,0 +1,115 @@
+<div class="conv-page">
+  <div class="conv-sidebar">
+    <% if login_role == 'tenant' && @agency_user %>
+      <div class="card mb-3">
+        <div class="card-header"><span class="card-title">Contacter l'agence</span></div>
+        <div class="card-content">
+          <% existing = current_user.conversations.joins(:conversation_participants)
+                .where(conversation_participants: { user_id: @agency_user.id }).first %>
+          <% if existing %>
+            <p class="text-muted text-sm mb-3">
+              <%= link_to "Voir la conversation en cours →", conversations_path(selected_id: existing.id), class: "text-link" %>
+            </p>
+          <% end %>
+          <%= form_with url: conversations_path, method: :post, local: true, class: "flex gap-2" do |f| %>
+            <%= hidden_field_tag :user_id, @agency_user.id %>
+            <%= text_area_tag :message, nil, placeholder: "Écrivez votre message...", class: "form-textarea", style: "flex: 1; min-height: 2.5rem; max-height: 4rem; padding: 0.5rem 0.75rem; font-size: 0.875rem;", rows: 1, required: true %>
+            <%= f.submit "Envoyer", class: "btn btn-primary btn-sm", style: "align-self: flex-end;" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="conv-list-header">
+      <h2 style="font-size: 1.125rem; font-weight: 600;">Messages</h2>
+    </div>
+
+    <% if @conversations.any? %>
+      <div class="conv-list">
+        <% @conversations.each do |c| %>
+          <% other = c.other_participant(current_user) %>
+          <% next unless other %>
+          <%= link_to conversations_path(selected_id: c.id), class: "conv-list-item #{(params[:selected_id] == c.id.to_s || @selected == c) ? 'active' : ''}" do %>
+            <div class="conv-avatar"><%= other.full_name.first.upcase %></div>
+            <div class="conv-meta">
+              <div class="conv-name-row">
+                <span class="conv-name"><%= other.full_name %></span>
+                <% if c.last_message %>
+                  <span class="conv-time"><%= time_ago_in_words(c.last_message.created_at) %></span>
+                <% end %>
+              </div>
+              <div class="conv-preview-row">
+                <span class="conv-preview">
+                  <% if c.last_message %>
+                    <%= c.last_message.sender_id == current_user.id ? 'Vous : ' : '' %><%= c.last_message.body.truncate(50) %>
+                  <% else %>
+                    <span class="text-muted">Aucun message</span>
+                  <% end %>
+                </span>
+                <% if c.unread_count(current_user) > 0 %>
+                  <span class="conv-badge"><%= c.unread_count(current_user) %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state" style="padding: 2rem 1rem;">
+        <div class="empty-state-icon" style="font-size: 2rem;">💬</div>
+        <h3 style="font-size: 1rem;">Aucune conversation</h3>
+        <p style="font-size: 0.8125rem;">Les messages avec votre agence ou vos propriétaires apparaîtront ici</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="conv-main">
+    <% if @selected && @other %>
+      <div class="conv-thread-header">
+        <div class="conv-back">
+          <%= link_to conversations_path, class: "btn btn-ghost btn-sm" do %>
+            ←
+          <% end %>
+        </div>
+        <div class="conv-thread-avatar"><%= @other.full_name.first.upcase %></div>
+        <div>
+          <div class="font-semibold"><%= @other.full_name %></div>
+          <div class="text-xs text-muted"><%= @other.role&.capitalize %></div>
+        </div>
+      </div>
+
+      <div class="conv-messages" id="conv-messages">
+        <% if @messages.any? %>
+          <% @messages.each do |m| %>
+            <div class="msg <%= m.sender_id == current_user.id ? 'msg-out' : 'msg-in' %>">
+              <div class="msg-bubble">
+                <p><%= m.body %></p>
+                <p class="msg-time">
+                  <%= l(m.created_at, format: :short) %>
+                  <% if m.read_at && m.sender_id == current_user.id %>· Lu<% end %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state" style="flex: 1;">
+            <div class="empty-state-icon">💬</div>
+            <h3>Aucun message</h3>
+            <p>Envoyez le premier message</p>
+          </div>
+        <% end %>
+      </div>
+
+      <%= form_with url: conversation_messages_path(@selected), method: :post, local: true, class: "conv-form" do |f| %>
+        <%= f.text_area :body, placeholder: "Votre message...", class: "form-textarea conv-input", rows: 1, required: true %>
+        <%= f.submit "Envoyer", class: "btn btn-primary btn-sm" %>
+      <% end %>
+    <% else %>
+      <div class="empty-state" style="flex: 1;">
+        <div class="empty-state-icon" style="font-size: 3rem;">💬</div>
+        <h3>Sélectionnez une conversation</h3>
+        <p class="text-muted">Choisissez une conversation dans la liste de gauche</p>
+      </div>
+    <% end %>
+  </div>
+</div>

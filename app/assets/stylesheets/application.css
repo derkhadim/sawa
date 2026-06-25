@@ -782,6 +782,7 @@ tr:hover td { background: var(--muted); }
 }
 
 .page-header h1 { font-size: 1.5rem; }
+form.inline { display: inline; }
 
 /* ---------- Building Cards (Airbnb Listing Card style) ---------- */
 .building-card {
@@ -901,4 +902,182 @@ tr:hover td { background: var(--muted); }
   .building-card {
     border-radius: var(--radius-cards);
   }
+}
+
+/* ---------- Unified Chat Layout ---------- */
+.conv-page {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 10rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card);
+}
+
+.conv-sidebar {
+  width: 340px;
+  min-width: 340px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.conv-sidebar .card {
+  margin: 0.75rem;
+}
+
+.conv-list-header {
+  padding: 1rem 1rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.conv-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.conv-list-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.conv-list-item:hover { background: var(--muted); }
+.conv-list-item.active { background: var(--muted); }
+
+.conv-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.conv-meta { flex: 1; min-width: 0; }
+.conv-name-row { display: flex; justify-content: space-between; align-items: center; }
+.conv-name { font-weight: 600; font-size: 0.875rem; }
+.conv-time { font-size: 0.75rem; color: var(--muted-foreground); }
+.conv-preview-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.125rem; }
+.conv-preview { font-size: 0.8125rem; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
+.conv-badge {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 999px;
+  min-width: 1.25rem;
+  text-align: center;
+}
+
+.conv-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.conv-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+.conv-back { display: none; }
+
+.conv-thread-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+.conv-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.msg { display: flex; }
+.msg-in { justify-content: flex-start; }
+.msg-out { justify-content: flex-end; }
+
+.msg-bubble {
+  max-width: 75%;
+  padding: 0.625rem 0.875rem;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.msg-in .msg-bubble { background: var(--muted); }
+.msg-out .msg-bubble { background: var(--primary); color: var(--primary-foreground); }
+
+.msg-bubble p { margin: 0; }
+.msg-time {
+  font-size: 0.6875rem;
+  opacity: 0.7;
+  text-align: right;
+  margin-top: 0.25rem !important;
+}
+
+.conv-form {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+
+.conv-input {
+  flex: 1;
+  min-height: 2.5rem;
+  max-height: 6rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Mobile: full-width sidebar, main below */
+@media (max-width: 768px) {
+  .conv-page { flex-direction: column; height: auto; min-height: calc(100vh - 10rem); }
+
+  .conv-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 50vh;
+  }
+
+  .conv-main {
+    min-height: 50vh;
+  }
+
+  .conv-back { display: block; }
 }

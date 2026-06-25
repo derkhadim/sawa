@@ -12,6 +12,10 @@
     <h1><%= @building.name %></h1>
     <div class="flex flex-wrap gap-2">
       <% if login_role == 'agence' %>
+        <%= button_to conversations_path, params: { user_id: User.find_by(email: @building.owner&.email)&.id }, method: :post, class: "btn btn-ghost btn-sm", form_class: "inline" do %>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Contacter le propriétaire
+        <% end if @building.owner&.email %>
         <%= link_to building_publications_path(@building), class: "btn btn-primary btn-sm" do %>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
           Fil d'actualité

@@ -12,6 +12,10 @@ class User < ApplicationRecord
   has_many :publications, foreign_key: :tenant_id
   has_many :move_out_notices, foreign_key: :tenant_id
 
+  has_many :conversation_participants, dependent: :destroy
+  has_many :conversations, through: :conversation_participants
+  has_many :sent_messages, class_name: 'Message', foreign_key: :sender_id, dependent: :destroy
+
   validates :email, presence: true, uniqueness: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone, presence: true, uniqueness: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_22_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
   create_table "agencies", force: :cascade do |t|
     t.string "name", null: false
     t.string "address"
@@ -62,6 +62,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_000001) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "conversation_participants", force: :cascade do |t|
+    t.integer "conversation_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "last_read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id", "user_id"], name: "index_conversation_participants_on_conversation_id_and_user_id", unique: true
+    t.index ["conversation_id"], name: "index_conversation_participants_on_conversation_id"
+    t.index ["user_id"], name: "index_conversation_participants_on_user_id"
+  end
+
+  create_table "conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "incidents", force: :cascade do |t|
     t.string "title", null: false
     t.text "description", null: false
@@ -84,6 +100,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_000001) do
     t.index ["publication_id", "user_id"], name: "index_likes_on_publication_id_and_user_id", unique: true
     t.index ["publication_id"], name: "index_likes_on_publication_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.integer "conversation_id", null: false
+    t.integer "sender_id", null: false
+    t.text "body", null: false
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["sender_id"], name: "index_messages_on_sender_id"
   end
 
   create_table "move_out_notices", force: :cascade do |t|
@@ -214,11 +241,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_000001) do
   add_foreign_key "buildings", "owners"
   add_foreign_key "comments", "publications"
   add_foreign_key "comments", "users"
+  add_foreign_key "conversation_participants", "conversations"
+  add_foreign_key "conversation_participants", "users"
   add_foreign_key "incidents", "apartments"
   add_foreign_key "incidents", "providers"
   add_foreign_key "incidents", "users", column: "tenant_id"
   add_foreign_key "likes", "publications"
   add_foreign_key "likes", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "move_out_notices", "apartments"
   add_foreign_key "move_out_notices", "users", column: "tenant_id"
   add_foreign_key "owners", "agencies"
