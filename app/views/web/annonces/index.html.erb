@@ -6,22 +6,24 @@
 <% if @apartments.any? %>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <% @apartments.each do |apt| %>
-      <%= link_to annonce_path(apt), class: "card no-underline text-inherit hover:shadow-sm transition-shadow p-0", style: "transition: box-shadow 0.15s;" do %>
-        <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; background: #f3f4f6; border-radius: var(--radius) var(--radius) 0 0;">
-          <img src="<%= apt.photo_list.first %>" style="width: 100%; height: 100%; object-fit: cover;">
+      <%= link_to annonce_path(apt), class: "building-card no-underline text-inherit" do %>
+        <div class="building-card-image">
+          <img src="<%= apt.photo_list.first %>" alt="Appartement <%= apt.number %>">
         </div>
-        <div style="padding: 0.75rem;">
-          <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem;">
+        <div class="building-card-body">
+          <div class="building-card-title">
             Appartement <%= apt.number %> — <%= apt.building.name %>
-          </h3>
-          <p class="text-muted text-xs mb-1"><%= apt.building.address %></p>
+          </div>
+          <div class="building-card-subtitle"><%= apt.building.address %></div>
           <div class="flex items-center gap-2 mb-2">
             <span class="badge badge-success">Libre</span>
             <span class="text-xs text-muted"><%= apt.building.neighborhood %></span>
             <span class="text-xs text-muted">· Étage <%= apt.floor %></span>
           </div>
-          <p class="text-lg font-bold text-primary"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA</p>
-          <p class="text-xs text-muted">par mois</p>
+          <div class="building-card-footer">
+            <span class="building-card-price"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA</span>
+            <span class="building-card-occupancy">par mois</span>
+          </div>
         </div>
       <% end %>
     <% end %>

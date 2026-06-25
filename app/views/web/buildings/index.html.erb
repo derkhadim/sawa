@@ -10,19 +10,23 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
   <% @buildings.each do |b| %>
-    <%= link_to b, class: "card no-underline text-inherit p-4 hover:shadow-sm transition-shadow", style: "transition: box-shadow 0.15s;" do %>
-      <div style="width: 100%; height: 140px; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.75rem; background: #f3f4f6;">
-        <img src="<%= b.photo_url %>" style="width: 100%; height: 100%; object-fit: cover;">
+    <%= link_to b, class: "building-card no-underline text-inherit" do %>
+      <div class="building-card-image building-card-image-square">
+        <img src="<%= b.photo_url %>" alt="<%= b.name %>">
       </div>
-      <h3 class="mb-2"><%= b.name %></h3>
-      <p class="text-muted text-sm mb-1"><%= b.address %></p>
-      <% if b.neighborhood.present? %>
-        <p class="text-muted text-sm mb-1"><%= b.neighborhood %><%= " — #{b.commune}" if b.commune.present? %></p>
-      <% end %>
-      <div class="flex gap-2 mt-3">
-        <span class="badge badge-primary"><%= b.apartments.size %> app.</span>
-        <span class="badge badge-success"><%= b.occupied_apartments %> occupés</span>
-        <span class="badge badge-warning"><%= b.free_apartments %> libres</span>
+      <div class="building-card-body">
+        <div class="building-card-title"><%= b.name %></div>
+        <div class="building-card-subtitle">
+          <%= b.neighborhood.present? ? "#{b.neighborhood}" : b.address %>
+          <%= "— #{b.commune}" if b.commune.present? %>
+        </div>
+        <div class="building-card-footer">
+          <span class="building-card-price"><%= b.occupied_apartments %>/<%= b.apartments.size %> occupés</span>
+          <span class="building-card-occupancy">
+            <% pct = b.apartments.size > 0 ? (b.occupied_apartments.to_f / b.apartments.size * 100).round : 0 %>
+            <%= pct %>%
+          </span>
+        </div>
       </div>
     <% end %>
   <% end %>
