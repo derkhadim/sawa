@@ -60,10 +60,9 @@ class Web::DashboardController < Web::ApplicationController
 
   def tenant
     require_role(:tenant)
-    @apartment = current_user.apartments_as_tenant.first
+    @apartments = current_user.apartments_as_tenant.includes(:building)
     @payments = current_user.payments.order(year: :desc, month: :desc)
     @incidents = current_user.incidents.order(created_at: :desc)
-    @building = @apartment&.building
     @current_payment = @payments.find_by(month: Time.current.month, year: Time.current.year)
   end
 
@@ -105,6 +104,6 @@ class Web::DashboardController < Web::ApplicationController
                                 .order(created_at: :desc)
                                 .limit(20)
 
-    @agency_user = @buildings.first&.agency&.users&.first
+    @agency_contacts = @buildings.map { |b| b.agency&.users&.first }.compact.uniq
   end
 end

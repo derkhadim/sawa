@@ -95,35 +95,41 @@ module Api
       def tenant
         return render json: { error: 'Accès refusé' }, status: :forbidden unless current_user.tenant?
 
-        apartment = current_user.apartments_as_tenant.first
+        apartments = current_user.apartments_as_tenant.includes(:building)
 
-        unless apartment
-          return render json: { apartment: nil, message: 'Aucun appartement assigné' }
+        unless apartments.any?
+          return render json: { apartments: [], message: 'Aucun appartement assigné' }
         end
 
         payments = current_user.payments.order(year: :desc, month: :desc)
         incidents = current_user.incidents.order(created_at: :desc)
-        building = apartment.building
 
         now = Time.current
         current_payment = payments.find_by(month: now.month, year: now.year)
+        agency_user = apartments.first.building&.agency&.users&.first
 
         render json: {
-          apartment: {
-            id: apartment.id,
-            number: apartment.number,
-            rent_amount: apartment.rent_amount,
-            building_name: building.name,
-            building_address: building.address,
-            building_id: building.id
+          apartments: apartments.map { |apt|
+            building = apt.building
+            {
+              id: apt.id,
+              number: apt.number,
+              rent_amount: apt.rent_amount,
+              floor: apt.floor,
+              building_name: building.name,
+              building_address: building.address,
+              building_id: building.id,
+              agency_id: building.agency_id
+            }
           },
+          agency: agency_user ? { id: agency_user.id, name: agency_user.full_name, phone: agency_user.phone } : nil,
           current_payment_status: current_payment&.status || 'pending',
           current_payment_id: current_payment&.id,
           last_payments: payments.limit(6).map { |p|
-            { id: p.id, amount: p.amount, month: p.month, year: p.year, status: p.status, paid_at: p.paid_at }
+            { id: p.id, amount: p.amount, month: p.month, year: p.year, status: p.status, paid_at: p.paid_at, apartment_id: p.apartment_id }
           },
           recent_incidents: incidents.limit(5).map { |i|
-            { id: i.id, title: i.title, status: i.status, created_at: i.created_at }
+            { id: i.id, title: i.title, status: i.status, created_at: i.created_at, apartment_id: i.apartment_id }
           }
         }
       end

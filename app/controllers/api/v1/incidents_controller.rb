@@ -1,8 +1,10 @@
 module Api
   module V1
     class IncidentsController < ApplicationController
+      include Authorization
+
       def index
-        apartment = Apartment.find(params[:apartment_id])
+        apartment = find_apartment_in_scope
 
         incidents = if current_user.agence?
                       apartment.incidents
@@ -14,17 +16,17 @@ module Api
       end
 
       def show
-        incident = Incident.find(params[:id])
-
-        unless current_user.agence? || current_user.id == incident.tenant_id
-          return render json: { error: 'Accès refusé' }, status: :forbidden
-        end
+        incident = if current_user.agence?
+                     find_in_agency(Incident)
+                   else
+                     current_user.incidents.find(params[:id])
+                   end
 
         render json: { incident: incident_response(incident) }
       end
 
       def create
-        apartment = Apartment.find(params[:apartment_id])
+        apartment = find_apartment_in_scope
 
         unless current_user.tenant? && current_user.id == apartment.tenant_id
           return render json: { error: 'Accès refusé' }, status: :forbidden
@@ -44,9 +46,13 @@ module Api
       end
 
       def update
-        incident = Incident.find(params[:id])
+        incident = if current_user.agence?
+                     find_in_agency(Incident)
+                   else
+                     current_user.incidents.find(params[:id])
+                   end
 
-        unless current_user.agence? || (current_user.tenant? && current_user.id == incident.tenant_id)
+        unless current_user.agence? || current_user.id == incident.tenant_id
           return render json: { error: 'Accès refusé' }, status: :forbidden
         end
 

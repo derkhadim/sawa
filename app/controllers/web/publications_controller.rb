@@ -1,11 +1,8 @@
 class Web::PublicationsController < Web::ApplicationController
-  def index
-    @building = Building.find(params[:building_id])
+  include Authorization
 
-    unless current_user.agence? || current_user.building_id == @building.id
-      redirect_to dashboard_path, alert: 'Accès refusé'
-      return
-    end
+  def index
+    @building = find_building_in_scope
 
     @publications = @building.publications.recent.includes(:tenant, :likes)
     @publication = @building.publications.new
@@ -19,13 +16,13 @@ class Web::PublicationsController < Web::ApplicationController
   end
 
   def show
-    @publication = Publication.find(params[:id])
+    @publication = find_publication_in_scope
     @comments = @publication.comments.recent.includes(:user)
     @comment = @publication.comments.new
   end
 
   def like
-    @publication = Publication.find(params[:id])
+    @publication = find_publication_in_scope
 
     unless current_user.tenant? || current_user.agence?
       redirect_back fallback_location: root_path, alert: 'Accès refusé'
@@ -44,9 +41,9 @@ class Web::PublicationsController < Web::ApplicationController
   end
 
   def create
-    @building = Building.find(params[:building_id])
+    @building = find_building_in_scope
 
-    unless current_user.tenant? && current_user.building_id == @building.id ||
+    unless current_user.tenant? && current_user.tenant_buildings.ids.include?(@building.id) ||
            current_user.agence? && current_user.agency.buildings.exists?(@building.id)
       redirect_to @building, alert: 'Accès refusé'
       return

@@ -1,16 +1,17 @@
 module Api
   module V1
     class ApartmentsController < ApplicationController
+      include Authorization
       before_action :require_agent, except: [:show, :index]
 
       def index
-        building = Building.find(params[:building_id])
+        building = find_building_in_scope
         apartments = building.apartments.includes(:tenant)
         render json: { apartments: apartments.map { |a| apartment_response(a) } }
       end
 
       def show
-        apartment = Apartment.find(params[:id])
+        apartment = find_apartment_in_scope
         render json: { apartment: apartment_detail(apartment) }
       end
 

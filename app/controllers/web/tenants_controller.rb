@@ -9,9 +9,9 @@ class Web::TenantsController < Web::ApplicationController
                 building_ids = owner ? owner.buildings.pluck(:id) : []
                 User.where(building_id: building_ids).find(params[:id])
               end
-    @apartment = @tenant.apartments_as_tenant.first
-    @payments = @tenant.payments.order(year: :desc, month: :desc).limit(12)
-    @incidents = @tenant.incidents.order(created_at: :desc).limit(10)
+    @apartments = @tenant.apartments_as_tenant.includes(:building)
+    @payments = @tenant.payments.includes(:apartment).order(year: :desc, month: :desc).limit(12)
+    @incidents = @tenant.incidents.includes(:apartment).order(created_at: :desc).limit(10)
   end
 
   def rating
@@ -27,7 +27,7 @@ class Web::TenantsController < Web::ApplicationController
 
   def cash_payment
     @tenant = User.joins(building: :agency).where(agencies: { id: current_user.agency_id }).find(params[:id])
-    apartment = @tenant.apartments_as_tenant.first
+    apartment = @tenant.apartments_as_tenant.find_by(id: params[:apartment_id]) || @tenant.apartments_as_tenant.first
 
     unless apartment
       redirect_to tenant_path(@tenant), alert: 'Ce locataire n\'a pas d\'appartement assigné'
@@ -54,6 +54,6 @@ class Web::TenantsController < Web::ApplicationController
       )
     end
 
-    redirect_to tenant_path(@tenant), notice: "Paiement cash enregistre pour #{apartment.rent_amount} FCFA"
+    redirect_to tenant_path(@tenant), notice: "Paiement cash enregistré pour #{apartment.rent_amount} FCFA"
   end
 end

@@ -1,23 +1,27 @@
 class Web::PaymentsController < Web::ApplicationController
+  include Authorization
+
   def index
-    @apartment = Apartment.find(params[:apartment_id])
+    @apartment = find_apartment_in_scope
     @payments = @apartment.payments.order(year: :desc, month: :desc)
   end
 
   def show
+    @payment = find_in_agency(Payment)
+  rescue ActiveRecord::RecordNotFound
     @payment = Payment.includes(apartment: :building).find(params[:id])
-    unless current_user.agence? || current_user.id == @payment.tenant_id
+    unless current_user.id == @payment.tenant_id
       redirect_to root_path, alert: 'Accès refusé'
     end
   end
 
   def new
-    @apartment = Apartment.find(params[:apartment_id])
+    @apartment = find_apartment_in_scope
     @payment = @apartment.payments.new
   end
 
   def create
-    @apartment = Apartment.find(params[:apartment_id])
+    @apartment = find_apartment_in_scope
 
     unless current_user.tenant? && current_user.id == @apartment.tenant_id
       redirect_to @apartment, alert: 'Accès refusé'
@@ -83,12 +87,7 @@ class Web::PaymentsController < Web::ApplicationController
   end
 
   def validate
-    @payment = Payment.find(params[:id])
-
-    unless current_user.agence?
-      redirect_to root_path, alert: 'Accès refusé'
-      return
-    end
+    @payment = find_in_agency(Payment)
 
     if @payment.update(status: 'paid', paid_at: Time.current)
       redirect_back fallback_location: dashboard_path, notice: 'Paiement validé — quittance disponible'

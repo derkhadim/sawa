@@ -1,6 +1,5 @@
 <div class="page-header">
   <h1>Mes signalements</h1>
-  <%= link_to "Nouveau signalement", new_apartment_incident_path(@apartment), class: "btn btn-primary btn-sm" %>
 </div>
 
 <div class="card">
@@ -9,13 +8,14 @@
       <div class="table-container">
         <table>
           <thead>
-            <tr><th>Titre</th><th>Description</th><th>Statut</th><th>Date</th><th></th></tr>
+            <tr><th>Appartement</th><th>Titre</th><th>Description</th><th>Statut</th><th>Date</th><th></th></tr>
           </thead>
           <tbody>
             <% @incidents.each do |i| %>
               <tr>
+                <td class="text-muted text-sm">Appt <%= i.apartment.number %></td>
                 <td class="font-medium"><%= i.title %></td>
-                <td class="text-muted truncate" style="max-width: 280px;"><%= i.description %></td>
+                <td class="text-muted truncate" style="max-width: 200px;"><%= i.description %></td>
                 <td>
                   <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
                     <%= i.status_label %>
@@ -32,8 +32,7 @@
       <div class="empty-state">
         <div class="empty-state-icon">✅</div>
         <h3>Aucun signalement</h3>
-        <p>Tout est en ordre dans votre logement</p>
-        <%= link_to "Signaler un problème", new_apartment_incident_path(@apartment), class: "btn btn-primary mt-4" %>
+        <p>Tout est en ordre dans vos logements</p>
       </div>
     <% end %>
   </div>

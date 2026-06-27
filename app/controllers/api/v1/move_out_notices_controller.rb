@@ -4,7 +4,11 @@ module Api
       before_action :require_tenant
 
       def create
-        apartment = current_user.apartments_as_tenant.first
+        apartment = if params[:apartment_id].present?
+                      current_user.apartments_as_tenant.find_by(id: params[:apartment_id])
+                    else
+                      current_user.apartments_as_tenant.first
+                    end
 
         unless apartment
           return render json: { error: 'Aucun appartement trouvé' }, status: :not_found

@@ -2,114 +2,116 @@
   <h1>Mon espace</h1>
 </div>
 
-<% if @apartment %>
-  <div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Mon appartement</span>
-      </div>
-      <div class="card-content">
-        <p class="font-semibold text-lg"><%= @apartment.number %></p>
-        <p class="text-muted text-sm"><%= @building.name %></p>
-        <p class="text-muted text-sm"><%= @building.address %></p>
-        <p class="mt-4 text-xl font-bold text-primary"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA/mois</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Paiement du mois</span>
-        <span class="badge <%= @current_payment&.status == 'paid' ? 'badge-success' : @current_payment&.status == 'late' ? 'badge-destructive' : @current_payment&.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
-          <%= @current_payment&.status == 'paid' ? 'Payé' : @current_payment&.status == 'late' ? 'En retard' : @current_payment&.status == 'submitted' ? 'Soumis' : 'En attente' %>
-        </span>
-      </div>
-      <div class="card-content">
-        <% if @current_payment&.status == 'paid' %>
-          <p class="text-muted text-sm">Payé le <%= l(@current_payment.paid_at.to_date, format: :long) %></p>
-          <%= link_to "Voir la quittance", @current_payment, class: "btn btn-outline btn-sm mt-3" %>
-        <% else %>
-          <p>Montant: <span class="font-semibold"><%= number_to_currency(@apartment.rent_amount, unit: "", precision: 0) %> FCFA</span></p>
-          <p class="text-muted text-sm mt-1">Échéance: 12 de chaque mois</p>
-          <div class="mt-4 flex gap-2">
-            <%= link_to "Payer maintenant", new_apartment_payment_path(@apartment), class: "btn btn-primary" %>
+<% if @apartments.any? %>
+  <div class="grid grid-cols-1 gap-4 mb-6">
+    <% @apartments.each do |apt| %>
+      <% building = apt.building %>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Appartement <%= apt.number %> — <%= building.name %></span>
+          <span class="text-muted text-sm"><%= building.address %></span>
+        </div>
+        <div class="card-content">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-2xl font-bold text-primary"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA/mois</p>
+              <p class="text-muted text-sm mt-1">Étage <%= apt.floor || "—" %></p>
+            </div>
+            <div class="flex gap-2 items-end justify-end">
+              <% current_month_paid = @payments.any? { |p| p.apartment_id == apt.id && p.month == Date.current.month && p.year == Date.current.year && p.status == 'paid' } %>
+              <% unless current_month_paid %>
+                <%= link_to "Payer", new_apartment_payment_path(apt), class: "btn btn-primary btn-sm" %>
+              <% end %>
+              <%= link_to "Signaler", new_apartment_incident_path(apt), class: "btn btn-ghost btn-sm" %>
+              <%= link_to "Fil d'actu", building_publications_path(building), class: "btn btn-ghost btn-sm" %>
+            </div>
           </div>
-        <% end %>
+
+          <% apt_incidents = @incidents.select { |i| i.apartment_id == apt.id }.first(5) %>
+          <% if apt_incidents.any? %>
+            <hr class="my-3">
+            <p class="text-xs text-muted font-medium mb-2">Signalements</p>
+            <% apt_incidents.each do |i| %>
+              <div class="flex items-center justify-between py-1">
+                <span class="text-sm"><%= i.title %></span>
+                <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %> text-xs"><%= i.status_label %></span>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
       </div>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Tous les paiements</span>
+      <%= link_to "Voir tout", apartment_payments_path(@apartments.first), class: "btn btn-ghost btn-sm" %>
+    </div>
+    <div class="card-content p-0">
+      <% if @payments.any? %>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Appartement</th><th>Période</th><th>Montant</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <% @payments.first(10).each do |p| %>
+                <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
+                  <td class="text-muted text-sm">Appt <%= p.apartment.number %></td>
+                  <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
+                  <td><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
+                  <td>
+                    <span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
+                      <%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="empty-state"><p class="text-muted">Aucun paiement</p></div>
+      <% end %>
     </div>
   </div>
 
-  <div class="grid grid-cols-2 gap-4">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Historique des paiements</span>
-        <%= link_to "Voir tout", apartment_payments_path(@apartment), class: "btn btn-ghost btn-sm" %>
-      </div>
-      <div class="card-content p-0">
-        <% if @payments.any? %>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr><th>Période</th><th>Montant</th><th>Statut</th></tr>
-              </thead>
-              <tbody>
-                <% @payments.limit(6).each do |p| %>
-                  <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
-                    <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
-                    <td><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
-                    <td>
-                      <span class="badge <%= p.status == 'paid' ? 'badge-success' : p.status == 'late' ? 'badge-destructive' : p.status == 'submitted' ? 'badge-info' : 'badge-warning' %>">
-                        <%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %>
-                      </span>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        <% else %>
-          <div class="empty-state"><p class="text-muted">Aucun paiement</p></div>
-        <% end %>
-      </div>
+  <div class="card mt-4">
+    <div class="card-header">
+      <span class="card-title">Mes signalements</span>
+      <%= link_to "Voir tout", tenant_incidents_path, class: "btn btn-ghost btn-sm" %>
     </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Mes signalements</span>
-        <div style="display: flex; gap: 4px;">
-          <%= link_to "Nouveau", new_apartment_incident_path(@apartment), class: "btn btn-primary btn-sm" %>
-          <%= link_to "Voir tout", tenant_incidents_path, class: "btn btn-ghost btn-sm" %>
+    <div class="card-content p-0">
+      <% if @incidents.any? %>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Appartement</th><th>Titre</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <% @incidents.first(5).each do |i| %>
+                <tr>
+                  <td class="text-muted text-sm">Appt <%= i.apartment.number %></td>
+                  <td class="font-medium"><%= i.title %></td>
+                  <td>
+                    <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
+                      <%= i.status_label %>
+                    </span>
+                  </td>
+                  <td class="text-muted text-sm"><%= l(i.created_at.to_date, format: :short) %></td>
+                  <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div class="card-content p-0">
-        <% if @incidents.any? %>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr><th>Titre</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                <% @incidents.limit(5).each do |i| %>
-                  <tr>
-                    <td class="font-medium"><%= i.title %></td>
-                    <td>
-                      <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %>">
-                        <%= i.status_label %>
-                      </span>
-                    </td>
-                    <td class="text-muted text-sm"><%= l(i.created_at.to_date, format: :short) %></td>
-                    <td><%= link_to "Voir détails", i, class: "btn btn-ghost btn-sm" %></td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        <% else %>
-          <div class="empty-state"><p class="text-muted">Aucun signalement</p></div>
-        <% end %>
-      </div>
-      <div class="card-footer">
-        <%= link_to "Donner mon préavis de départ", new_move_out_notice_path, class: "btn btn-ghost btn-sm" %>
-      </div>
+      <% else %>
+        <div class="empty-state"><p class="text-muted">Aucun signalement</p></div>
+      <% end %>
+    </div>
+    <div class="card-footer">
+      <%= link_to "Donner mon préavis de départ", new_move_out_notice_path, class: "btn btn-ghost btn-sm" %>
     </div>
   </div>
 <% else %>

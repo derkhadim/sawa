@@ -5,7 +5,7 @@ module Api
 
       def register
         user = User.new(user_params)
-        user.role = params[:role] || 'tenant'
+        user.role = 'tenant'
 
         if user.role == 'agence'
           agency_name = params[:agency_name]
@@ -75,7 +75,7 @@ module Api
       end
 
       def profile_params
-        params.permit(:email, :phone, :first_name, :last_name, :profile_photo, :cover_photo)
+        params.permit(:email, :phone, :first_name, :last_name)
       end
 
       def safe_extension(filename)

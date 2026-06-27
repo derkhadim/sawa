@@ -1,12 +1,10 @@
 module Api
   module V1
     class PublicationsController < ApplicationController
-      def index
-        building = Building.find(params[:building_id])
+      include Authorization
 
-        unless current_user.agence? || current_user.building_id == building.id
-          return render json: { error: 'Accès refusé' }, status: :forbidden
-        end
+      def index
+        building = find_building_in_scope
 
         publications = building.publications.recent.includes(:tenant)
         render json: {
@@ -28,9 +26,9 @@ module Api
       end
 
       def create
-        building = Building.find(params[:building_id])
+        building = find_building_in_scope
 
-        unless current_user.tenant? && current_user.building_id == building.id ||
+        unless current_user.tenant? && current_user.tenant_buildings.ids.include?(building.id) ||
                current_user.agence? && current_user.agency.buildings.exists?(building.id)
           return render json: { error: 'Accès refusé' }, status: :forbidden
         end
@@ -58,11 +56,7 @@ module Api
       end
 
       def show
-        publication = Publication.find(params[:id])
-
-        unless current_user.agence? || current_user == publication.tenant
-          return render json: { error: 'Accès refusé' }, status: :forbidden
-        end
+        publication = find_publication_in_scope
 
         comments = publication.comments.includes(:user).order(created_at: :desc)
 
@@ -95,7 +89,7 @@ module Api
       end
 
       def like
-        publication = Publication.find(params[:id])
+        publication = find_publication_in_scope
 
         unless current_user.tenant? || current_user.agence?
           return render json: { error: 'Accès refusé' }, status: :forbidden

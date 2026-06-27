@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '>= 3.0.0'
 
 gem 'rails', '~> 7.0'
-gem 'puma', '~> 6.0'
+gem 'puma', '~> 7.2'
 gem 'bcrypt', '~> 3.1'
 gem 'jwt', '~> 2.7'
 gem 'rack-cors'
@@ -28,3 +28,4 @@ group :development do
   gem 'listen', '~> 3.8'
   gem 'brakeman'
 end
+gem 'rack-attack'

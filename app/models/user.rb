@@ -42,6 +42,14 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  def tenant_buildings
+    Building.joins(:apartments).where(apartments: { tenant_id: id }).distinct
+  end
+
+  def has_apartment?
+    tenant? && apartments_as_tenant.exists?
+  end
+
   RATINGS = { excellent: 3, solvable: 2, douteux: 1 }.freeze
 
   def rating_label

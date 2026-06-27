@@ -47,6 +47,6 @@ class Web::ProfilesController < Web::ApplicationController
   end
 
   def profile_params
-    params.require(:user).permit(:email, :phone, :first_name, :last_name, :password, :password_confirmation, :profile_photo, :cover_photo)
+    params.require(:user).permit(:email, :phone, :first_name, :last_name, :password, :password_confirmation)
   end
 end

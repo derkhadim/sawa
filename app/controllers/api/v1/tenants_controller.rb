@@ -16,7 +16,11 @@ module Api
 
       def cash_payment
         tenant = current_user.agency.users.joins(:building).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
-        apartment = tenant.apartments_as_tenant.first
+        apartment = if params[:apartment_id].present?
+                      tenant.apartments_as_tenant.find_by(id: params[:apartment_id])
+                    else
+                      tenant.apartments_as_tenant.first
+                    end
 
         unless apartment
           return render json: { error: 'Aucun appartement assigné' }, status: :unprocessable_entity

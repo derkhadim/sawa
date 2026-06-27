@@ -1,6 +1,7 @@
 module Api
   module V1
     class CommentsController < ApplicationController
+      include Authorization
       before_action :set_publication
 
       def index
@@ -50,7 +51,7 @@ module Api
       private
 
       def set_publication
-        @publication = Publication.find(params[:publication_id])
+        @publication = find_publication_in_scope
       end
     end
   end

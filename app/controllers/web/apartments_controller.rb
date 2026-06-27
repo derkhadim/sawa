@@ -1,15 +1,16 @@
 class Web::ApartmentsController < Web::ApplicationController
+  include Authorization
   ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
 
   before_action :require_agent, except: [:show]
 
   def index
-    @building = Building.find(params[:building_id])
+    @building = find_building_in_scope
     @apartments = @building.apartments.includes(:tenant)
   end
 
   def show
-    @apartment = Apartment.find(params[:id])
+    @apartment = find_apartment_in_scope
     @payments = @apartment.payments.order(year: :desc, month: :desc)
     @incidents = @apartment.incidents.order(created_at: :desc)
   end

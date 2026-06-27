@@ -52,7 +52,7 @@
         <% if @payment.status == 'paid' %>
           <tr>
             <td class="label">Date de paiement</td>
-            <td class="value"><%= l(@payment.paid_at.to_date, format: :long) %></td>
+            <td class="value"><%= l(@payment.paid_at.to_date, format: :long) if @payment.paid_at %></td>
           </tr>
           <tr><td colspan="2"><hr></td></tr>
           <tr>

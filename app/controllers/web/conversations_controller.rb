@@ -1,9 +1,8 @@
 class Web::ConversationsController < Web::ApplicationController
   def index
     @conversations = current_user.conversations
-      .includes(:participants, :messages)
+      .includes(:participants)
       .order(updated_at: :desc)
-    @agency_user = current_user.building&.agency&.users&.first if login_role == 'tenant'
 
     if params[:selected_id].present?
       @selected = current_user.conversations.find_by(id: params[:selected_id])
@@ -14,14 +13,6 @@ class Web::ConversationsController < Web::ApplicationController
         @other = @selected.other_participant(current_user)
       end
     end
-  end
-
-  def show
-    @conversation = current_user.conversations.find(params[:id])
-    @messages = @conversation.messages.includes(:sender).order(created_at: :asc)
-    @conversation.conversation_participants.where(user: current_user).update_all(last_read_at: Time.current)
-    @conversation.messages.where.not(sender_id: current_user).update_all(read_at: Time.current)
-    @other = @conversation.other_participant(current_user)
   end
 
   def create
@@ -38,7 +29,7 @@ class Web::ConversationsController < Web::ApplicationController
       if params[:message].present?
         existing.messages.create!(sender: current_user, body: params[:message])
       end
-      redirect_to conversation_path(existing)
+      redirect_to conversations_path(selected_id: existing.id)
       return
     end
 
@@ -50,6 +41,6 @@ class Web::ConversationsController < Web::ApplicationController
       conversation.messages.create!(sender: current_user, body: params[:message])
     end
 
-    redirect_to conversation_path(conversation)
+    redirect_to conversations_path(selected_id: conversation.id)
   end
 end

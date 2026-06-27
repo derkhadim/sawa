@@ -1,26 +1,28 @@
 module Api
   module V1
     class PaymentsController < ApplicationController
+      include Authorization
       before_action :require_agent, only: [:index]
 
       def index
-        apartment = Apartment.find(params[:apartment_id])
+        apartment = find_apartment_in_scope
         payments = apartment.payments.includes(:tenant).order(year: :desc, month: :desc)
         render json: { payments: payments.map { |p| payment_response(p) } }
       end
 
       def show
+        payment = find_in_agency(Payment)
+        render json: { payment: payment_response(payment) }
+      rescue ActiveRecord::RecordNotFound
         payment = Payment.includes(apartment: :building).find(params[:id])
-
-        unless current_user.agence? || current_user.id == payment.tenant_id
+        unless current_user.id == payment.tenant_id
           return render json: { error: 'Accès refusé' }, status: :forbidden
         end
-
         render json: { payment: payment_response(payment) }
       end
 
       def create
-        apartment = Apartment.find(params[:apartment_id])
+        apartment = find_apartment_in_scope
 
         unless current_user.tenant? && current_user.id == apartment.tenant_id
           return render json: { error: 'Accès refusé' }, status: :forbidden
@@ -57,11 +59,7 @@ module Api
       end
 
       def validate
-        payment = Payment.find(params[:id])
-
-        unless current_user.agence?
-          return render json: { error: 'Accès refusé' }, status: :forbidden
-        end
+        payment = find_in_agency(Payment)
 
         if payment.update(status: 'paid', paid_at: Time.current)
           render json: { payment: payment_response(payment), message: 'Paiement validé' }

@@ -2,15 +2,15 @@ class Web::MoveOutNoticesController < Web::ApplicationController
   before_action :require_tenant
 
   def new
-    @apartment = current_user.apartments_as_tenant.first
+    @apartments = current_user.apartments_as_tenant.includes(:building)
     @notice = MoveOutNotice.new
   end
 
   def create
-    @apartment = current_user.apartments_as_tenant.first
+    @apartment = current_user.apartments_as_tenant.find_by(id: params[:apartment_id])
 
     unless @apartment
-      redirect_to dashboard_tenant_path, alert: 'Aucun appartement trouvé'
+      redirect_to dashboard_tenant_path, alert: 'Appartement introuvable'
       return
     end
 
@@ -22,6 +22,7 @@ class Web::MoveOutNoticesController < Web::ApplicationController
     if @notice.save
       redirect_to dashboard_tenant_path, notice: 'Préavis de départ enregistré'
     else
+      @apartments = current_user.apartments_as_tenant.includes(:building)
       flash.now[:alert] = @notice.errors.full_messages.join(', ')
       render :new
     end

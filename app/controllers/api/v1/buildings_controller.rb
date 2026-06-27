@@ -7,12 +7,12 @@ module Api
         buildings = if current_user.agence?
                       current_user.agency.buildings.includes(:owner, :apartments)
                     elsif current_user.tenant?
-                      Building.where(id: current_user.building_id).includes(:apartments)
+                      current_user.tenant_buildings.includes(:apartments)
                     elsif current_user.owner?
                       owner = Owner.find_by(email: current_user.email)
                       owner ? owner.buildings.includes(:apartments) : Building.none
                     else
-                      Building.all.includes(:owner, :apartments)
+                      Building.none
                     end
         render json: { buildings: buildings.map { |b| building_response(b) } }
       end

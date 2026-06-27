@@ -7,7 +7,7 @@ class Web::RegistrationsController < Web::ApplicationController
 
   def create
     @user = User.new(user_params)
-    @user.role = params[:user][:role] || 'tenant'
+    @user.role = 'tenant'
 
     if @user.role == 'agence'
       agency_name = params[:user][:agency_name]

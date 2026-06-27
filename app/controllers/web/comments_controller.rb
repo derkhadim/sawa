@@ -1,6 +1,8 @@
 class Web::CommentsController < Web::ApplicationController
+  include Authorization
+
   def create
-    @publication = Publication.find(params[:publication_id])
+    @publication = find_publication_in_scope
 
     unless current_user.tenant? || current_user.agence?
       redirect_back fallback_location: root_path, alert: 'Accès refusé'
