@@ -9,34 +9,25 @@
 
       <%= form_tag login_path, class: "space-y-4" do %>
         <div class="space-y-2">
-          <label class="form-label" for="email">Email</label>
-          <%= email_field_tag :email, nil, class: "form-input", placeholder: "vous@exemple.com", required: true, autofocus: true %>
+          <label class="form-label" for="phone">Téléphone</label>
+          <%= telephone_field_tag :phone, nil, class: "form-input", placeholder: "77 000 00 00", required: true, autofocus: true %>
         </div>
         <div class="space-y-2">
           <label class="form-label" for="password">Mot de passe</label>
           <%= password_field_tag :password, nil, class: "form-input", placeholder: "••••••••", required: true %>
         </div>
         <div class="space-y-2">
-          <label class="form-label">Type de compte</label>
-          <div style="display: flex; gap: 0.75rem;">
-            <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; flex: 1; justify-content: center;">
-              <%= radio_button_tag :login_role, 'tenant', true %>
-              Locataire
-            </label>
-            <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; flex: 1; justify-content: center;">
-              <%= radio_button_tag :login_role, 'owner' %>
-              Propriétaire
-            </label>
-          </div>
+          <label class="form-label" for="login_role">Type de compte</label>
+          <%= select_tag :login_role,
+                options_for_select([['Locataire', 'tenant'], ['Propriétaire', 'owner'], ['Agence', 'agence']], 'tenant'),
+                class: "form-input",
+                style: "width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; cursor: pointer;" %>
         </div>
         <%= submit_tag "Se connecter", class: "btn btn-primary w-full", style: "justify-content: center;" %>
       <% end %>
 
       <div class="login-link">
         Pas encore de compte ? <%= link_to "Créer un compte", register_path %>
-      </div>
-      <div class="login-link" style="margin-top: 0.25rem;">
-        <%= link_to "Connexion professionnelle", pro_login_path %>
       </div>
     </div>
   </div>

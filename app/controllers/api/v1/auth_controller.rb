@@ -24,13 +24,13 @@ module Api
       end
 
       def login
-        user = User.find_by(email: params[:email])
+        user = User.find_by(phone: params[:phone])
 
         if user&.authenticate(params[:password])
           token = JwtService.encode(user_id: user.id, role: user.role)
           render json: { user: user_response(user), token: token }
         else
-          render json: { error: 'Email ou mot de passe invalide' }, status: :unauthorized
+          render json: { error: 'Téléphone ou mot de passe invalide' }, status: :unauthorized
         end
       end
 
@@ -71,7 +71,7 @@ module Api
       private
 
       def user_params
-        params.permit(:email, :phone, :password, :password_confirmation, :first_name, :last_name)
+        params.permit(:phone, :password, :password_confirmation, :first_name, :last_name)
       end
 
       def profile_params

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_27_182553) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_27_221936) do
   create_table "agencies", force: :cascade do |t|
     t.string "name", null: false
     t.string "address"
@@ -214,7 +214,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_27_182553) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "email", null: false
+    t.string "email"
     t.string "phone", null: false
     t.string "password_digest", null: false
     t.string "first_name", null: false
@@ -229,7 +229,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_27_182553) do
     t.integer "rating"
     t.index ["agency_id"], name: "index_users_on_agency_id"
     t.index ["building_id"], name: "index_users_on_building_id"
-    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 

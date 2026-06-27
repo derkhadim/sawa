@@ -3,14 +3,14 @@
     <div class="card p-8">
       <div class="login-header">
         <div class="login-icon">🏢</div>
-        <h1>Sawa Pro</h1>
-        <p class="text-muted">Espace professionnel</p>
+        <h1>Sawa</h1>
+        <p class="text-muted">Administration</p>
       </div>
 
       <%= form_tag pro_login_path, class: "space-y-4" do %>
         <div class="space-y-2">
-          <label class="form-label" for="email">Email</label>
-          <%= email_field_tag :email, nil, class: "form-input", placeholder: "vous@exemple.com", required: true, autofocus: true %>
+          <label class="form-label" for="phone">Téléphone</label>
+          <%= telephone_field_tag :phone, nil, class: "form-input", placeholder: "77 000 00 00", required: true, autofocus: true %>
         </div>
         <div class="space-y-2">
           <label class="form-label" for="password">Mot de passe</label>
@@ -20,7 +20,7 @@
       <% end %>
 
       <div class="login-link">
-        <%= link_to "Connexion locataire / propriétaire", login_path %>
+        <%= link_to "Connexion locataire / propriétaire / agence", login_path %>
       </div>
     </div>
   </div>

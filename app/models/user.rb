@@ -16,8 +16,7 @@ class User < ApplicationRecord
   has_many :conversations, through: :conversation_participants
   has_many :sent_messages, class_name: 'Message', foreign_key: :sender_id, dependent: :destroy
 
-  validates :email, presence: true, uniqueness: true,
-                    format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :phone, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true, unless: :agence?
   validates :role, presence: true, inclusion: { in: ROLES }

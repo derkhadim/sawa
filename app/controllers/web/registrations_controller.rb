@@ -32,7 +32,7 @@ class Web::RegistrationsController < Web::ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:email, :phone, :password, :password_confirmation, :first_name, :last_name)
+    params.require(:user).permit(:phone, :password, :password_confirmation, :first_name, :last_name)
   end
 
   def after_login_path(user)

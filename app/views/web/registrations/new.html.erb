@@ -45,18 +45,12 @@
         </div>
 
         <div class="space-y-2">
-          <%= f.label :email, class: "form-label" %>
-          <%= f.email_field :email, class: "form-input", required: true %>
-        </div>
-
-        <div class="space-y-2">
           <%= f.label :phone, "Téléphone", class: "form-label" %>
           <%= f.telephone_field :phone, class: "form-input", required: true %>
         </div>
 
-        <div class="form-row">
-          <div class="space-y-2">
-            <%= f.label :password, "Mot de passe", class: "form-label" %>
+        <div class="space-y-2">
+          <%= f.label :password, "Mot de passe", class: "form-label" %>
             <%= f.password_field :password, class: "form-input", required: true %>
           </div>
           <div class="space-y-2">

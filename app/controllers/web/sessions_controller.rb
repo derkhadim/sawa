@@ -6,7 +6,7 @@ class Web::SessionsController < Web::ApplicationController
   end
 
   def create
-    user = User.find_by(email: params[:email])
+    user = User.find_by(phone: params[:phone])
 
     if user&.authenticate(params[:password])
       login_role = params[:login_role] || user.role
@@ -34,7 +34,7 @@ class Web::SessionsController < Web::ApplicationController
 
   private
 
-  PUBLIC_ROLES = %w[tenant owner].freeze
+  PUBLIC_ROLES = %w[tenant owner agence super_admin].freeze
 
   def role_available?(user, login_role)
     unless PUBLIC_ROLES.include?(login_role)
