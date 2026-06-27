@@ -1,7 +1,6 @@
 module Api
   module V1
     class CommentsController < ApplicationController
-      include Authorization
       before_action :set_publication
 
       def index

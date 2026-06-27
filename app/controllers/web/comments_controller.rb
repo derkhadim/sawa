@@ -1,5 +1,4 @@
 class Web::CommentsController < Web::ApplicationController
-  include Authorization
 
   def create
     @publication = find_publication_in_scope

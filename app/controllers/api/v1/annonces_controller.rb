@@ -30,7 +30,7 @@ module Api
       end
 
       def show
-        apartment = Apartment.includes(:building).find(params[:id])
+        apartment = Apartment.where(status: 'free', visible: true).includes(:building).find(params[:id])
         render json: {
           annonce: {
             id: apartment.id,

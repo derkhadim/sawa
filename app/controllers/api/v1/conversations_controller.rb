@@ -9,7 +9,11 @@ module Api
       end
 
       def create
-        other = User.find(params[:user_id])
+        other = find_messagable_user
+        unless other
+          return render json: { error: 'Utilisateur introuvable' }, status: :not_found
+        end
+
         existing = current_user.conversations.joins(:conversation_participants)
           .where(conversation_participants: { user_id: other.id })
           .first
@@ -39,6 +43,17 @@ module Api
       end
 
       private
+
+      def find_messagable_user
+        if current_user.agence?
+          User.where(agency_id: current_user.agency_id).find_by(id: params[:user_id])
+        elsif current_user.tenant?
+          agency_ids = current_user.tenant_buildings.pluck(:agency_id).compact.uniq
+          User.where(agency_id: agency_ids, role: 'agence').find_by(id: params[:user_id])
+        else
+          nil
+        end
+      end
 
       def conversation_json(c)
         other = c.other_participant(current_user)

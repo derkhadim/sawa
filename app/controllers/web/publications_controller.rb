@@ -1,5 +1,4 @@
 class Web::PublicationsController < Web::ApplicationController
-  include Authorization
 
   def index
     @building = find_building_in_scope

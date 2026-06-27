@@ -16,7 +16,7 @@ class Web::ConversationsController < Web::ApplicationController
   end
 
   def create
-    other = User.find_by(id: params[:user_id])
+    other = find_messagable_user
     unless other
       redirect_to conversations_path, alert: 'Utilisateur introuvable'
       return
@@ -42,5 +42,18 @@ class Web::ConversationsController < Web::ApplicationController
     end
 
     redirect_to conversations_path(selected_id: conversation.id)
+  end
+
+  private
+
+  def find_messagable_user
+    if current_user.agence?
+      User.where(agency_id: current_user.agency_id).find_by(id: params[:user_id])
+    elsif current_user.tenant?
+      agency_ids = current_user.tenant_buildings.pluck(:agency_id).compact.uniq
+      User.where(agency_id: agency_ids, role: 'agence').find_by(id: params[:user_id])
+    else
+      nil
+    end
   end
 end

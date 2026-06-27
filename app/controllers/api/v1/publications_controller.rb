@@ -1,7 +1,6 @@
 module Api
   module V1
     class PublicationsController < ApplicationController
-      include Authorization
 
       def index
         building = find_building_in_scope

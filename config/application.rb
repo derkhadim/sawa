@@ -20,5 +20,6 @@ module Loca
 
     config.autoload_paths << Rails.root.join('app', 'serializers')
     config.autoload_paths << Rails.root.join('app', 'services')
+    config.autoload_paths << Rails.root.join('app', 'controllers', 'concerns')
   end
 end

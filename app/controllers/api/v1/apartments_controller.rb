@@ -1,7 +1,6 @@
 module Api
   module V1
     class ApartmentsController < ApplicationController
-      include Authorization
       before_action :require_agent, except: [:show, :index]
 
       def index

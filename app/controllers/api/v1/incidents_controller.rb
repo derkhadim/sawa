@@ -1,7 +1,6 @@
 module Api
   module V1
     class IncidentsController < ApplicationController
-      include Authorization
 
       def index
         apartment = find_apartment_in_scope

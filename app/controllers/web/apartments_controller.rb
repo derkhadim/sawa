@@ -1,5 +1,4 @@
 class Web::ApartmentsController < Web::ApplicationController
-  include Authorization
   ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
 
   before_action :require_agent, except: [:show]

@@ -13,6 +13,6 @@ class Web::AnnoncesController < Web::ApplicationController
   end
 
   def show
-    @apartment = Apartment.includes(:building).find(params[:id])
+    @apartment = Apartment.where(status: 'free').includes(:building).find(params[:id])
   end
 end

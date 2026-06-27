@@ -1,5 +1,4 @@
 class Web::PaymentsController < Web::ApplicationController
-  include Authorization
 
   def index
     @apartment = find_apartment_in_scope

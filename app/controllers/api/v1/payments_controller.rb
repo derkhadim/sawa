@@ -1,7 +1,6 @@
 module Api
   module V1
     class PaymentsController < ApplicationController
-      include Authorization
       before_action :require_agent, only: [:index]
 
       def index
