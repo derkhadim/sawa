@@ -71,23 +71,28 @@ class Web::ApartmentsController < Web::ApplicationController
         building_id: @apartment.building_id
       )
       tenant.save!
+    else
+      tenant.update!(
+        first_name: params[:first_name].presence || tenant.first_name,
+        last_name: params[:last_name].presence || tenant.last_name,
+        email: params[:email].presence || tenant.email
+      )
     end
 
     @apartment.update!(tenant: tenant, status: 'occupied')
-    tenant.update!(building_id: @apartment.building_id)
+    tenant.update!(building_id: @apartment.building_id) unless tenant.building_id.present?
 
     now = Time.current
-    @apartment.payments.create!(
+    payment = @apartment.payments.find_or_initialize_by(month: now.month, year: now.year)
+    payment.update!(
       tenant: tenant,
       amount: @apartment.rent_amount,
       due_date: Payment.default_due_date(now.year, now.month),
-      month: now.month,
-      year: now.year,
       status: 'pending'
     )
 
     redirect_to @apartment, notice: 'Locataire assigné'
-  rescue ActiveRecord::RecordInvalid => e
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
     redirect_to @apartment, alert: "Erreur: #{e.message}"
   end
 
@@ -104,6 +109,30 @@ class Web::ApartmentsController < Web::ApplicationController
     tenant.update!(building_id: nil)
 
     redirect_to @apartment, notice: "Locataire #{tenant.full_name} désassigné"
+  end
+
+  def cash_payment
+    @apartment = Apartment.joins(:building).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
+
+    unless @apartment.occupied?
+      redirect_to @apartment, alert: 'Cet appartement n\'est pas occupé'
+      return
+    end
+
+    now = Date.current
+    payment = @apartment.payments.find_or_initialize_by(month: now.month, year: now.year)
+    payment.update!(
+      status: 'paid',
+      paid_at: Time.current,
+      payment_method: 'cash',
+      proof: nil,
+      amount: @apartment.rent_amount,
+      due_date: Payment.default_due_date(now.year, now.month),
+      tenant: @apartment.tenant,
+      reference: payment.reference.presence || "CASH-#{now.strftime('%Y%m%d')}-#{@apartment.id}"
+    )
+
+    redirect_to payment_path(payment), notice: "Paiement en espèces de #{@apartment.rent_amount} FCFA enregistré — quittance disponible"
   end
 
   private

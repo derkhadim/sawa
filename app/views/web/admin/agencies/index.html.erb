@@ -35,7 +35,7 @@
           </div>
           <div>
             <div style="font-weight: 600; color: #222;">Propriétaires</div>
-            <div><%= agency.owners.size %></div>
+            <div><%= Owner.joins(:buildings).where(buildings: { agency_id: agency.id }).distinct.count %></div>
           </div>
           <div>
             <div style="font-weight: 600; color: #222;">Créée le</div>

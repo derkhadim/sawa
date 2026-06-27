@@ -60,7 +60,7 @@ class Web::DashboardController < Web::ApplicationController
 
   def tenant
     require_role(:tenant)
-    @apartments = current_user.apartments_as_tenant.includes(:building)
+    @apartments = current_user.apartments_as_tenant.includes(building: :agency)
     @payments = current_user.payments.order(year: :desc, month: :desc)
     @incidents = current_user.incidents.order(created_at: :desc)
     @current_payment = @payments.find_by(month: Time.current.month, year: Time.current.year)

@@ -91,7 +91,15 @@
 </div>
 
 <div class="card mb-4">
-  <div class="card-header"><span class="card-title">Paiements</span></div>
+  <div class="card-header">
+    <span class="card-title">Paiements</span>
+    <% if @apartment.occupied? && login_role == 'agence' %>
+      <% current_month_paid = @payments.any? { |p| p.month == Date.current.month && p.year == Date.current.year && p.status == 'paid' } %>
+      <% unless current_month_paid %>
+        <%= button_to "💵 Paiement en espèces (#{number_to_currency(@apartment.rent_amount, unit: '', precision: 0)} F)", cash_payment_apartment_path(@apartment), method: :post, class: "btn btn-primary btn-sm", onclick: "return confirm('Enregistrer un paiement en espèces de #{number_to_currency(@apartment.rent_amount, unit: '', precision: 0)} FCFA pour #{@apartment.tenant&.full_name} ?')" %>
+      <% end %>
+    <% end %>
+  </div>
   <div class="card-content p-0">
     <% if @payments.any? %>
       <div class="table-container">

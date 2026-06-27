@@ -18,13 +18,38 @@
         <p class="text-muted text-sm mb-4">Paiement pour <strong><%= t('date.month_names')[Time.current.month] %> <%= Time.current.year %></strong></p>
 
         <div class="space-y-2 text-left">
+          <%= label_tag :payment_method, "Mode de paiement", class: "form-label" %>
+          <%= select_tag :payment_method,
+                options_for_select([['Mobile Money (Wave, Orange Money...)', 'mobile_money'], ['Espèces', 'cash'], ['Chèque', 'check']]),
+                prompt: 'Sélectionnez le mode',
+                required: true,
+                class: "form-input",
+                style: "width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; cursor: pointer;" %>
+        </div>
+
+        <div class="space-y-2 text-left" id="proof-section" style="display: none;">
           <%= label_tag :proof, "Capture d'écran du paiement", class: "form-label" %>
-          <input type="file" name="proof" id="proof" accept="image/*" required class="form-input" onchange="document.getElementById('proof-preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('proof-preview').style.display='block'">
+          <input type="file" name="proof" id="proof" accept="image/*" class="form-input" onchange="document.getElementById('proof-preview').src = window.URL.createObjectURL(this.files[0]); document.getElementById('proof-preview').style.display='block'">
           <img id="proof-preview" style="max-width: 100%; max-height: 200px; margin-top: 8px; border-radius: 8px; display: none;">
         </div>
 
         <%= submit_tag "Envoyer la preuve", class: "btn btn-primary btn-lg w-full", style: "justify-content: center;" %>
       <% end %>
+
+      <script>
+        document.getElementById('payment_method').addEventListener('change', function() {
+          var proofSection = document.getElementById('proof-section');
+          var proofInput = document.getElementById('proof');
+          if (this.value === 'mobile_money' || this.value === 'check') {
+            proofSection.style.display = '';
+            proofInput.required = true;
+          } else {
+            proofSection.style.display = 'none';
+            proofInput.required = false;
+            proofInput.value = '';
+          }
+        });
+      </script>
 
       <div class="mt-4">
         <%= link_to "Annuler", dashboard_tenant_path, class: "btn btn-ghost" %>

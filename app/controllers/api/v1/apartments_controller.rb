@@ -50,30 +50,36 @@ module Api
             phone: params[:phone],
             role: 'tenant',
             first_name: params[:first_name] || 'Locataire',
-            last_name: params[:last_name] || phone,
+            last_name: params[:last_name] || params[:phone],
             email: params[:email] || "#{params[:phone]}@temp.loca",
             password: SecureRandom.hex(8),
             building_id: apartment.building_id
           )
           tenant.save!
+        else
+          tenant.update!(
+            first_name: params[:first_name].presence || tenant.first_name,
+            last_name: params[:last_name].presence || tenant.last_name,
+            email: params[:email].presence || tenant.email
+          )
         end
 
         apartment.update!(tenant: tenant, status: 'occupied')
-        tenant.update!(building_id: apartment.building_id)
+        tenant.update!(building_id: apartment.building_id) unless tenant.building_id.present?
 
         # Create pending payment for current month
         now = Time.current
-        apartment.payments.create!(
+        payment = apartment.payments.find_or_initialize_by(month: now.month, year: now.year)
+        payment.update!(
           tenant: tenant,
           amount: apartment.rent_amount,
           due_date: Payment.default_due_date(now.year, now.month),
-          month: now.month,
-          year: now.year,
           status: 'pending'
         )
 
         render json: { apartment: apartment_detail(apartment), tenant: { id: tenant.id, name: "#{tenant.first_name} #{tenant.last_name}", phone: tenant.phone } }
-      end
+      rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+        render json: { error: e.message }, status: :unprocessable_entity
 
       def unassign_tenant
         apartment = current_user.agency.apartments.joins(:building).find(params[:id])

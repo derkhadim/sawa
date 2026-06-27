@@ -2,7 +2,7 @@ class Web::OwnersController < Web::ApplicationController
   before_action :require_agent
 
   def index
-    @owners = current_user.agency.owners
+    @owners = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).distinct
   end
 
   def new
@@ -10,7 +10,7 @@ class Web::OwnersController < Web::ApplicationController
   end
 
   def create
-    @owner = current_user.agency.owners.new(owner_params)
+    @owner = Owner.new(owner_params)
 
     if @owner.save
       redirect_to owners_path, notice: 'Propriétaire ajouté'
@@ -21,11 +21,11 @@ class Web::OwnersController < Web::ApplicationController
   end
 
   def edit
-    @owner = current_user.agency.owners.find(params[:id])
+    @owner = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
   end
 
   def update
-    @owner = current_user.agency.owners.find(params[:id])
+    @owner = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
 
     if @owner.update(owner_params)
       redirect_to owners_path, notice: 'Propriétaire mis à jour'

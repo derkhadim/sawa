@@ -119,14 +119,15 @@ module Api
               building_name: building.name,
               building_address: building.address,
               building_id: building.id,
-              agency_id: building.agency_id
+              agency_id: building.agency_id,
+              agency_name: building.agency&.name
             }
           },
           agency: agency_user ? { id: agency_user.id, name: agency_user.full_name, phone: agency_user.phone } : nil,
           current_payment_status: current_payment&.status || 'pending',
           current_payment_id: current_payment&.id,
           last_payments: payments.limit(6).map { |p|
-            { id: p.id, amount: p.amount, month: p.month, year: p.year, status: p.status, paid_at: p.paid_at, apartment_id: p.apartment_id }
+            { id: p.id, amount: p.amount, month: p.month, year: p.year, status: p.status, paid_at: p.paid_at, payment_method: p.payment_method, apartment_id: p.apartment_id }
           },
           recent_incidents: incidents.limit(5).map { |i|
             { id: i.id, title: i.title, status: i.status, created_at: i.created_at, apartment_id: i.apartment_id }

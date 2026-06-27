@@ -4,17 +4,17 @@ module Api
       before_action :require_agent
 
       def index
-        owners = current_user.agency.owners
+        owners = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).distinct
         render json: { owners: owners.as_json(only: [:id, :first_name, :last_name, :phone, :email]) }
       end
 
       def show
-        owner = current_user.agency.owners.find(params[:id])
+        owner = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
         render json: { owner: owner_with_buildings(owner) }
       end
 
       def create
-        owner = current_user.agency.owners.new(owner_params)
+        owner = Owner.new(owner_params)
 
         if owner.save
           render json: { owner: owner }, status: :created
@@ -24,7 +24,7 @@ module Api
       end
 
       def update
-        owner = current_user.agency.owners.find(params[:id])
+        owner = Owner.joins(:buildings).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
 
         if owner.update(owner_params)
           render json: { owner: owner_with_buildings(owner) }

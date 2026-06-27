@@ -31,7 +31,7 @@ class Web::BuildingsController < Web::ApplicationController
 
   def new
     @building = Building.new
-    @owners = current_user.agency.owners
+    @owners = Owner.order(:first_name)
   end
 
   def create
@@ -42,7 +42,7 @@ class Web::BuildingsController < Web::ApplicationController
     if @building.save
       redirect_to buildings_path, notice: 'Immeuble créé'
     else
-      @owners = current_user.agency.owners
+      @owners = Owner.order(:first_name)
       flash.now[:alert] = @building.errors.full_messages.join(', ')
       render :new
     end
@@ -50,7 +50,7 @@ class Web::BuildingsController < Web::ApplicationController
 
   def edit
     @building = current_user.agency.buildings.find(params[:id])
-    @owners = current_user.agency.owners
+    @owners = Owner.order(:first_name)
   end
 
   def update
@@ -61,7 +61,7 @@ class Web::BuildingsController < Web::ApplicationController
     if @building.update(building_params)
       redirect_to @building, notice: 'Immeuble mis à jour'
     else
-      @owners = current_user.agency.owners
+      @owners = Owner.order(:first_name)
       flash.now[:alert] = @building.errors.full_messages.join(', ')
       render :edit
     end

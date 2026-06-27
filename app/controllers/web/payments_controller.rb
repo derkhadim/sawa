@@ -1,8 +1,12 @@
 class Web::PaymentsController < Web::ApplicationController
 
   def index
-    @apartment = find_apartment_in_scope
-    @payments = @apartment.payments.order(year: :desc, month: :desc)
+    if params[:apartment_id]
+      @apartment = find_apartment_in_scope
+      @payments = @apartment.payments.order(year: :desc, month: :desc)
+    else
+      @payments = current_user.payments.includes(apartment: :building).order(year: :desc, month: :desc)
+    end
   end
 
   def show
@@ -30,7 +34,7 @@ class Web::PaymentsController < Web::ApplicationController
     month = Time.current.month
     year = Time.current.year
 
-    @payment = @apartment.payments.find_or_initialize_by(month: month, year: year, tenant: current_user)
+    @payment = @apartment.payments.find_or_initialize_by(month: month, year: year)
 
     if @payment.status == 'paid'
       redirect_to new_apartment_payment_path(@apartment), alert: 'Ce mois est déjà payé'
@@ -42,6 +46,8 @@ class Web::PaymentsController < Web::ApplicationController
     @payment.reference = "PAY-#{year}#{format('%02d', month)}-#{@apartment.id}-#{current_user.id}"
     @payment.status = 'submitted'
     @payment.paid_at = nil
+    @payment.tenant = current_user
+    @payment.payment_method = params[:payment_method]
 
     if params[:proof].present?
       @payment.proof = save_proof(params[:proof])
@@ -88,7 +94,10 @@ class Web::PaymentsController < Web::ApplicationController
   def validate
     @payment = find_in_agency(Payment)
 
-    if @payment.update(status: 'paid', paid_at: Time.current)
+    attrs = { status: 'paid', paid_at: Time.current }
+    attrs[:payment_method] = params[:payment_method] if params[:payment_method].present?
+
+    if @payment.update(attrs)
       redirect_back fallback_location: dashboard_path, notice: 'Paiement validé — quittance disponible'
     else
       redirect_back fallback_location: dashboard_path, alert: 'Erreur lors de la validation'

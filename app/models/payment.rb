@@ -8,7 +8,7 @@ class Payment < ApplicationRecord
   validates :amount, numericality: { greater_than: 0 }
   validates :month, inclusion: { in: 1..12 }
   validates :status, inclusion: { in: %w[pending paid late submitted] }
-  validates :payment_method, inclusion: { in: %w[cash proof] }, allow_nil: true
+  validates :payment_method, inclusion: { in: %w[mobile_money cash check] }, allow_nil: true
 
   scope :paid, -> { where(status: 'paid') }
   scope :pending, -> { where(status: 'pending') }

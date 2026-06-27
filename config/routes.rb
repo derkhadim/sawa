@@ -89,13 +89,14 @@ Rails.application.routes.draw do
   resources :apartments, controller: 'web/apartments', only: [:show, :edit, :update] do
     post 'assign_tenant',   on: :member
     post 'unassign_tenant', on: :member
+    post 'cash_payment',    on: :member
     resources :payments, controller: 'web/payments', only: [:index, :new, :create]
     resources :incidents, controller: 'web/incidents', only: [:index, :new, :create]
   end
 
   get  'payments/pending_validation', to: 'web/payments#pending_validation', as: :pending_validation_payments
   post 'payments/:id/validate',        to: 'web/payments#validate',            as: :validate_payment
-  resources :payments, controller: 'web/payments', only: [:show]
+  resources :payments, controller: 'web/payments', only: [:index, :show]
   resources :incidents, controller: 'web/incidents', only: [:show, :update]
   resources :providers, controller: 'web/providers'
 

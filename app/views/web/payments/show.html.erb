@@ -94,13 +94,39 @@
             <img src="<%= @payment.proof %>" style="max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid var(--border);">
           </a>
         </div>
+      <% elsif @payment.payment_method == 'mobile_money' %>
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <p class="text-muted" style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Mode de paiement</p>
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius);">
+            <span style="font-weight: 600; color: #166534;">📱 Payé par Mobile Money</span>
+          </div>
+        </div>
       <% elsif @payment.payment_method == 'cash' %>
         <div style="margin-top: 1.5rem; text-align: center;">
           <p class="text-muted" style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Mode de paiement</p>
           <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius);">
-            <span style="font-size: 1.5rem;">💵</span>
-            <span style="font-weight: 600; color: #166534;">Payé par cash</span>
+            <span style="font-weight: 600; color: #166534;">💵 Payé en espèces</span>
           </div>
+        </div>
+      <% elsif @payment.payment_method == 'check' %>
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <p class="text-muted" style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Mode de paiement</p>
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius);">
+            <span style="font-weight: 600; color: #166534;">📄 Payé par chèque</span>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @payment.status == 'submitted' && current_user.agence? %>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed var(--border);">
+          <p style="font-weight: 600; margin-bottom: 0.75rem; text-align: center;">Valider le paiement</p>
+          <%= form_tag validate_payment_path(@payment), method: :post, style: "display: flex; gap: 0.5rem; justify-content: center; align-items: center;" do %>
+            <%= select_tag :payment_method,
+                  options_for_select([['Mobile Money', 'mobile_money'], ['Espèces', 'cash'], ['Chèque', 'check']]),
+                  prompt: 'Mode de paiement',
+                  style: "padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.875rem; background: white; cursor: pointer;" %>
+            <%= submit_tag "✅ Valider", class: "btn btn-primary", data: { confirm: "Confirmer le paiement de #{@payment.tenant.full_name} pour #{t('date.month_names')[@payment.month]} #{@payment.year} ?" } %>
+          <% end %>
         </div>
       <% end %>
 

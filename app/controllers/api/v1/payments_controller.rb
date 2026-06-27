@@ -45,6 +45,7 @@ module Api
         payment.reference = "PAY-#{year}#{format('%02d', month)}-#{apartment.id}-#{current_user.id}"
         payment.status = 'submitted'
         payment.paid_at = nil
+        payment.payment_method = params[:payment_method] if params[:payment_method].present?
 
         if params[:proof].present?
           payment.proof = save_proof_file(params[:proof])
@@ -60,7 +61,10 @@ module Api
       def validate
         payment = find_in_agency(Payment)
 
-        if payment.update(status: 'paid', paid_at: Time.current)
+        attrs = { status: 'paid', paid_at: Time.current }
+        attrs[:payment_method] = params[:payment_method] if params[:payment_method].present?
+
+        if payment.update(attrs)
           render json: { payment: payment_response(payment), message: 'Paiement validé' }
         else
           render json: { errors: payment.errors.full_messages }, status: :unprocessable_entity

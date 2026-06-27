@@ -49,7 +49,7 @@
         <tbody>
           <% @buildings_stats.each do |s| %>
             <tr>
-              <td class="font-medium"><%= s[:building].name %></td>
+              <td class="font-medium"><%= link_to s[:building].name, s[:building], class: "text-link" %></td>
               <td class="text-muted"><%= s[:occupied_apartments] %>/<%= s[:total_apartments] %></td>
               <td><%= number_to_currency(s[:total_rent], unit: "", precision: 0) %> F</td>
               <td class="text-primary font-medium"><%= number_to_currency(s[:monthly_paid], unit: "", precision: 0) %> F</td>
@@ -116,7 +116,7 @@
       <% @buildings.each do |b| %>
         <% stat = @buildings_stats.find { |s| s[:building].id == b.id } %>
         <div class="mb-4 pb-4 <%= 'border-b' unless b == @buildings.last %>">
-          <div class="font-medium mb-2"><%= b.name %></div>
+          <div class="font-medium mb-2"><%= link_to b.name, b, class: "text-link" %></div>
           <div class="flex gap-4 text-sm">
             <div>
               <span class="badge badge-success"><%= stat[:occupied_apartments] %> occupés</span>

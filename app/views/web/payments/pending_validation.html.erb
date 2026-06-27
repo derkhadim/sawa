@@ -29,7 +29,12 @@
                 </td>
                 <td class="text-muted"><%= l(p.created_at.to_date, format: :short) %></td>
                 <td>
-                  <%= form_tag validate_payment_path(p), method: :post, style: "display: inline;" do %>
+                  <%= form_tag validate_payment_path(p), method: :post, style: "display: flex; gap: 0.375rem; align-items: center;" do %>
+                    <%= select_tag :payment_method,
+                          options_for_select([['Mobile Money', 'mobile_money'], ['Cash', 'cash'], ['Chèque', 'check']]),
+                          prompt: 'Mode',
+                          class: "form-select form-select-sm",
+                          style: "padding: 0.25rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.8rem; background: white; cursor: pointer;" %>
                     <%= submit_tag "✅ Valider", class: "btn btn-primary btn-sm", data: { confirm: "Confirmer le paiement de #{p.tenant.full_name} pour #{t('date.month_names')[p.month]} #{p.year} ?" } %>
                   <% end %>
                 </td>

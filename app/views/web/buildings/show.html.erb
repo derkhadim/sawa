@@ -52,6 +52,7 @@
     <p class="text-xs text-muted mb-1">Adresse</p>
     <p class="text-sm font-medium"><%= @building.address %></p>
     <p class="text-xs text-muted mt-1"><%= @building.neighborhood %><%= " — #{@building.commune}" if @building.commune.present? %></p>
+    <p class="text-xs text-muted mt-1">Agence: <%= @building.agency&.name || "—" %></p>
     <p class="text-xs text-muted mt-1">Propriétaire: <%= @building.owner&.full_name || "—" %></p>
   </div>
 </div>

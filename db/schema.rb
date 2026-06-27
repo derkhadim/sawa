@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_27_182553) do
   create_table "agencies", force: :cascade do |t|
     t.string "name", null: false
     t.string "address"
@@ -128,10 +128,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
     t.string "last_name", null: false
     t.string "phone"
     t.string "email"
-    t.integer "agency_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["agency_id"], name: "index_owners_on_agency_id"
   end
 
   create_table "payments", force: :cascade do |t|
@@ -252,7 +250,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "move_out_notices", "apartments"
   add_foreign_key "move_out_notices", "users", column: "tenant_id"
-  add_foreign_key "owners", "agencies"
   add_foreign_key "payments", "apartments"
   add_foreign_key "payments", "users", column: "tenant_id"
   add_foreign_key "providers", "agencies"
