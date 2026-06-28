@@ -202,7 +202,9 @@ module Api
           status: payment.status,
           due_date: payment.due_date,
           paid_at: payment.paid_at,
-          tenant: "#{payment.tenant.first_name} #{payment.tenant.last_name}",
+          tenant: {
+            name: "#{payment.tenant.first_name} #{payment.tenant.last_name}"
+          },
           building: payment.apartment.building.name,
           apartment: payment.apartment.number
         }
