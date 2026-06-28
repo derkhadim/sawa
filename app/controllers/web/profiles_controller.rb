@@ -41,9 +41,8 @@ class Web::ProfilesController < Web::ApplicationController
   private
 
   def safe_extension(filename)
-    ext = filename.split('.').last&.downcase
-    return 'png' unless ext && ALLOWED_EXTENSIONS.include?(ext)
-    ext
+    ext = File.extname(filename).delete('.').downcase
+    %w[jpg jpeg png gif webp].include?(ext) ? ext : 'png'
   end
 
   def profile_params

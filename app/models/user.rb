@@ -5,6 +5,7 @@ class User < ApplicationRecord
 
   belongs_to :agency, optional: true
   belongs_to :building, optional: true
+  belongs_to :owner, optional: true
 
   has_many :apartments_as_tenant, class_name: 'Apartment', foreign_key: :tenant_id
   has_many :payments, foreign_key: :tenant_id
@@ -20,6 +21,7 @@ class User < ApplicationRecord
   validates :phone, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true, unless: :agence?
   validates :role, presence: true, inclusion: { in: ROLES }
+  validates :password, length: { minimum: 8 }, if: -> { new_record? || !password.nil? }
 
   def agence?
     role == 'agence'

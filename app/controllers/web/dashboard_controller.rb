@@ -68,7 +68,7 @@ class Web::DashboardController < Web::ApplicationController
 
   def owner
     require_role(:owner)
-    @owner = Owner.find_by(email: current_user.email)
+    @owner = current_owner
 
     unless @owner
       redirect_to root_path, alert: 'Propriétaire introuvable'

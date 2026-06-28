@@ -121,7 +121,7 @@ module Api
       end
 
       def safe_extension(filename)
-        ext = filename.split('.').last&.downcase
+        ext = File.extname(filename).delete('.').downcase
         %w[jpg jpeg png gif webp].include?(ext) ? ext : 'jpg'
       end
 

@@ -41,7 +41,7 @@ class Web::SessionsController < Web::ApplicationController
       return false
     end
     case login_role
-    when 'owner' then user.role == 'owner' || Owner.exists?(email: user.email)
+    when 'owner' then user.role == 'owner' || user.owner.present?
     when 'tenant' then user.role == 'tenant' || user.building_id.present?
     else user.role == login_role
     end

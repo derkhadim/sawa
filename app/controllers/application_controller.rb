@@ -19,6 +19,10 @@ class ApplicationController < ActionController::API
     @current_user
   end
 
+  def current_owner
+    @current_owner ||= current_user&.owner
+  end
+
   def require_role(role)
     unless current_user&.role == role.to_s
       render json: { error: 'Accès refusé' }, status: :forbidden
@@ -31,8 +35,7 @@ class ApplicationController < ActionController::API
            .where(agencies: { id: current_user.agency_id })
            .find(params[:id])
     elsif current_user.owner?
-      owner = Owner.find_by(email: current_user.email)
-      building_ids = owner&.buildings&.pluck(:id) || []
+      building_ids = current_owner&.buildings&.pluck(:id) || []
       scope.joins(:apartment).where(apartments: { building_id: building_ids }).find(params[:id])
     else
       raise ActiveRecord::RecordNotFound
@@ -44,8 +47,7 @@ class ApplicationController < ActionController::API
       building_ids = current_user.agency.buildings.pluck(:id)
       scope.where(building_id: building_ids).find(params[:id])
     elsif current_user.owner?
-      owner = Owner.find_by(email: current_user.email)
-      building_ids = owner&.buildings&.pluck(:id) || []
+      building_ids = current_owner&.buildings&.pluck(:id) || []
       scope.where(building_id: building_ids).find(params[:id])
     elsif current_user.tenant?
       building_ids = current_user.tenant_buildings.pluck(:id)
@@ -59,8 +61,7 @@ class ApplicationController < ActionController::API
     if current_user.agence?
       Apartment.joins(:building).where(buildings: { agency_id: current_user.agency_id }).find(params[:apartment_id] || params[:id])
     elsif current_user.owner?
-      owner = Owner.find_by(email: current_user.email)
-      Apartment.where(building_id: owner&.buildings&.pluck(:id) || []).find(params[:apartment_id] || params[:id])
+      Apartment.where(building_id: current_owner&.buildings&.pluck(:id) || []).find(params[:apartment_id] || params[:id])
     elsif current_user.tenant?
       current_user.apartments_as_tenant.find(params[:apartment_id] || params[:id])
     else
@@ -72,8 +73,7 @@ class ApplicationController < ActionController::API
     if current_user.agence?
       current_user.agency.buildings.find(params[:building_id] || params[:id])
     elsif current_user.owner?
-      owner = Owner.find_by(email: current_user.email)
-      Building.where(id: owner&.buildings&.pluck(:id) || []).find(params[:building_id] || params[:id])
+      Building.where(id: current_owner&.buildings&.pluck(:id) || []).find(params[:building_id] || params[:id])
     elsif current_user.tenant?
       current_user.tenant_buildings.find(params[:building_id] || params[:id])
     else
@@ -89,8 +89,7 @@ class ApplicationController < ActionController::API
       building_ids = current_user.tenant_buildings.pluck(:id)
       Publication.where(building_id: building_ids).find(params[:id])
     elsif current_user.owner?
-      owner = Owner.find_by(email: current_user.email)
-      building_ids = owner&.buildings&.pluck(:id) || []
+      building_ids = current_owner&.buildings&.pluck(:id) || []
       Publication.where(building_id: building_ids).find(params[:id])
     else
       raise ActiveRecord::RecordNotFound

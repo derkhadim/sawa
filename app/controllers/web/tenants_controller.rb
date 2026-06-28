@@ -7,8 +7,7 @@ class Web::TenantsController < Web::ApplicationController
                     .where(agencies: { id: current_user.agency_id })
                     .find(params[:id])
               else
-                owner = Owner.find_by(email: current_user.email)
-                building_ids = owner ? owner.buildings.pluck(:id) : []
+                building_ids = current_owner ? current_owner.buildings.pluck(:id) : []
                 User.joins(:apartments_as_tenant)
                     .where(apartments: { building_id: building_ids })
                     .find(params[:id])

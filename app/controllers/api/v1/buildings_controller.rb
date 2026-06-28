@@ -9,8 +9,7 @@ module Api
                     elsif current_user.tenant?
                       current_user.tenant_buildings.includes(:apartments)
                     elsif current_user.owner?
-                      owner = Owner.find_by(email: current_user.email)
-                      owner ? owner.buildings.includes(:apartments) : Building.none
+                      current_owner ? current_owner.buildings.includes(:apartments) : Building.none
                     else
                       Building.none
                     end
@@ -55,8 +54,7 @@ module Api
         if current_user.agence?
           current_user.agency.buildings.find(params[:id])
         elsif current_user.owner?
-          owner = Owner.find_by(email: current_user.email)
-          owner ? owner.buildings.find(params[:id]) : (raise ActiveRecord::RecordNotFound)
+          current_owner ? current_owner.buildings.find(params[:id]) : (raise ActiveRecord::RecordNotFound)
         else
           raise ActiveRecord::RecordNotFound
         end

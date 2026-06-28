@@ -134,7 +134,7 @@ module Api
       def owner_feed
         return render json: { error: 'Accès refusé' }, status: :forbidden unless current_user.owner?
 
-        owner = Owner.find_by(email: current_user.email)
+        owner = current_owner
         return render json: { publications: [] } unless owner
 
         building_ids = owner.buildings.pluck(:id)

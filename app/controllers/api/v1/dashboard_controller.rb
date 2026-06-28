@@ -138,7 +138,7 @@ module Api
       def owner
         return render json: { error: 'Accès refusé' }, status: :forbidden unless current_user.owner?
 
-        owner = Owner.find_by(email: current_user.email)
+        owner = current_owner
         unless owner
           return render json: { error: 'Propriétaire introuvable' }, status: :not_found
         end

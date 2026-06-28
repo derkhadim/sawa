@@ -27,5 +27,6 @@ end
 group :development do
   gem 'listen', '~> 3.8'
   gem 'brakeman'
+  gem 'bundler-audit'
 end
 gem 'rack-attack'

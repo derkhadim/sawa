@@ -1,6 +1,7 @@
 module Api
   module V1
     class AuthController < ApplicationController
+      include SecureUpload
       skip_before_action :authenticate_request, only: [:register, :login]
 
       def register
@@ -37,8 +38,6 @@ module Api
       def me
         render json: { user: user_response(current_user) }
       end
-
-      ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
 
       def update_profile
         user = current_user
@@ -79,8 +78,8 @@ module Api
       end
 
       def safe_extension(filename)
-        ext = filename.split('.').last&.downcase
-        return 'png' unless ext && ALLOWED_EXTENSIONS.include?(ext)
+        ext = File.extname(filename).delete('.').downcase
+        return 'png' unless ext.present? && SecureUpload::ALLOWED_EXTENSIONS.include?(ext)
         ext
       end
 

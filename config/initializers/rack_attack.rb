@@ -2,7 +2,7 @@ class Rack::Attack
   Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
 
   throttle('logins/ip', limit: 5, period: 60) do |req|
-    if req.path == '/login' && req.post?
+    if (req.path == '/login' && req.post?) || req.path == '/api/v1/auth/login'
       req.ip
     end
   end

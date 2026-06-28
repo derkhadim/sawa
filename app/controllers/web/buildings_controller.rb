@@ -9,9 +9,8 @@ class Web::BuildingsController < Web::ApplicationController
                    current_user.agency.buildings.includes(:owner, :apartments)
                  elsif login_role == 'tenant'
                    Building.where(id: current_user.building_id)
-                 elsif login_role == 'owner'
-                   owner = Owner.find_by(email: current_user.email)
-                   owner ? owner.buildings.includes(:apartments) : Building.none
+                  elsif login_role == 'owner'
+                    current_owner ? current_owner.buildings.includes(:apartments) : Building.none
                  else
                    Building.all
                  end
@@ -21,8 +20,7 @@ class Web::BuildingsController < Web::ApplicationController
     @building = if login_role == 'agence'
                   current_user.agency.buildings.find(params[:id])
                 elsif login_role == 'owner'
-                  owner = Owner.find_by(email: current_user.email)
-                  owner ? owner.buildings.find(params[:id]) : (raise ActiveRecord::RecordNotFound)
+                  current_owner ? current_owner.buildings.find(params[:id]) : (raise ActiveRecord::RecordNotFound)
                 else
                   raise ActiveRecord::RecordNotFound
                 end
@@ -79,9 +77,8 @@ class Web::BuildingsController < Web::ApplicationController
   end
 
   def safe_extension(filename)
-    ext = filename.split('.').last&.downcase
-    return 'jpg' unless ext && ALLOWED_EXTENSIONS.include?(ext)
-    ext
+    ext = File.extname(filename).delete('.').downcase
+    %w[jpg jpeg png gif webp].include?(ext) ? ext : 'jpg'
   end
 
   def building_params

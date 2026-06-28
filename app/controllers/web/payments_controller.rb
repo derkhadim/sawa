@@ -115,7 +115,7 @@ class Web::PaymentsController < Web::ApplicationController
   end
 
   def safe_extension(filename)
-    ext = filename.split('.').last&.downcase
+    ext = File.extname(filename).delete('.').downcase
     return 'jpg' unless ext && Payment::ALLOWED_PROOF_EXTENSIONS.include?(ext)
     ext
   end
