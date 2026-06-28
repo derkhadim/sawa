@@ -28,8 +28,14 @@ module Api
         user = User.find_by(phone: params[:phone])
 
         if user&.authenticate(params[:password])
-          token = JwtService.encode(user_id: user.id, role: user.role)
-          render json: { user: user_response(user), token: token }
+          login_role = params[:login_role] || user.role
+
+          unless role_available?(user, login_role)
+            return render json: { error: "Ce rôle n'est pas disponible pour ce compte" }, status: :forbidden
+          end
+
+          token = JwtService.encode(user_id: user.id, role: login_role)
+          render json: { user: user_response(user, login_role), token: token }
         else
           render json: { error: 'Téléphone ou mot de passe invalide' }, status: :unauthorized
         end
@@ -83,19 +89,28 @@ module Api
         ext
       end
 
-      def user_response(user)
+      def user_response(user, effective_role = nil)
         {
           id: user.id,
           email: user.email,
           phone: user.phone,
           first_name: user.first_name,
           last_name: user.last_name,
-          role: user.role,
+          role: effective_role || user.role,
           agency_id: user.agency_id,
           building_id: user.building_id,
           profile_photo: user.profile_photo,
-          cover_photo: user.cover_photo
+          cover_photo: user.cover_photo,
+          owner_id: user.owner_id
         }
+      end
+
+      def role_available?(user, login_role)
+        case login_role
+        when 'owner' then user.role == 'owner' || user.owner.present?
+        when 'tenant' then user.role == 'tenant' || user.building_id.present?
+        else user.role == login_role
+        end
       end
     end
   end
