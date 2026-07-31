@@ -29,6 +29,9 @@ Rails.application.routes.draw do
         resources :comments, only: [:index, :create]
       end
       resources :move_out_notices, only: [:create]
+      resources :contracts, only: [:index, :show, :create, :update] do
+        post :sign, on: :member
+      end
       resources :providers, only: [:index, :create, :update, :destroy]
       resources :tenants, only: [] do
         put :rating, on: :member
@@ -77,6 +80,12 @@ Rails.application.routes.draw do
   get  'agent/incidents',   to: 'web/incidents#agent_index'
   get  'agent/paiements',   to: 'web/payments#agency_index', as: :agent_payments
   get  'mes-signalements',  to: 'web/incidents#tenant_index', as: :tenant_incidents
+  get  'signaler',          to: 'web/incidents#tenant_new',   as: :tenant_new_incident
+  post 'signaler',          to: 'web/incidents#tenant_create'
+
+  get  'mes-contrats',      to: 'web/contracts#index',  as: :tenant_contracts
+  get  'contrats/:id',      to: 'web/contracts#show',   as: :contract
+  post 'contrats/:id/signer', to: 'web/contracts#sign', as: :sign_contract
 
   get  'admin/agencies',    to: 'web/admin/agencies#index'
   get  'admin/users',       to: 'web/admin/users#index'
@@ -92,6 +101,7 @@ Rails.application.routes.draw do
     post 'cash_payment',    on: :member
     resources :payments, controller: 'web/payments', only: [:index, :new, :create]
     resources :incidents, controller: 'web/incidents', only: [:index, :new, :create]
+    resources :contracts, controller: 'web/contracts', only: [:new, :create]
   end
 
   get  'payments/pending_validation', to: 'web/payments#pending_validation', as: :pending_validation_payments

@@ -53,37 +53,16 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               Contacter
             <% end %>
+            <% if @apartment.contracts.signed.any? %>
+              <%= link_to "Voir le contrat", contract_path(@apartment.contracts.signed.last), class: "btn btn-secondary btn-sm" %>
+            <% end %>
             <%= button_to "Désassigner", unassign_tenant_apartment_path(@apartment), method: :post, class: "btn btn-destructive btn-sm", onclick: "return confirm('Retirer #{@apartment.tenant.full_name} de cet appartement ?')" %>
           </div>
         <% end %>
       <% else %>
         <p class="text-muted">Aucun locataire</p>
         <% if login_role == 'agence' %>
-          <%= link_to "Assigner un locataire", "#", class: "btn btn-primary btn-sm mt-2", onclick: "event.preventDefault(); document.getElementById('assign-form').classList.toggle('hidden');" %>
-          <div id="assign-form" class="hidden mt-3 space-y-3">
-            <%= form_tag assign_tenant_apartment_path(@apartment) do %>
-              <div class="space-y-2">
-                <%= label_tag :phone, "Numéro de téléphone", class: "form-label" %>
-                <%= telephone_field_tag :phone, nil, class: "form-input", placeholder: "+221771234567", required: true %>
-              </div>
-              <div class="grid grid-cols-2 gap-2 mt-2">
-                <div>
-                  <%= label_tag :first_name, "Prénom (si nouveau)", class: "form-label" %>
-                  <%= text_field_tag :first_name, nil, class: "form-input", placeholder: "Prénom" %>
-                </div>
-                <div>
-                  <%= label_tag :last_name, "Nom (si nouveau)", class: "form-label" %>
-                  <%= text_field_tag :last_name, nil, class: "form-input", placeholder: "Nom" %>
-                </div>
-              </div>
-              <div class="mt-2">
-                <%= label_tag :email, "Email (si nouveau)", class: "form-label" %>
-                <%= email_field_tag :email, nil, class: "form-input", placeholder: "email@exemple.com" %>
-              </div>
-              <div class="text-xs text-muted mt-1">Si le numéro existe déjà, les champs ci-dessus sont ignorés.</div>
-              <%= submit_tag "Assigner", class: "btn btn-primary btn-sm mt-2" %>
-            <% end %>
-          </div>
+          <%= link_to "Créer un contrat", new_apartment_contract_path(@apartment), class: "btn btn-primary btn-sm mt-2" %>
         <% end %>
       <% end %>
     </div>
@@ -125,6 +104,34 @@
     <% end %>
   </div>
 </div>
+
+<% if @apartment.contracts.any? %>
+  <div class="card mb-4">
+    <div class="card-header">
+      <span class="card-title">Contrats</span>
+    </div>
+    <div class="card-content p-0">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Numéro</th><th>Locataire</th><th>Statut</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @apartment.contracts.order(created_at: :desc).each do |c| %>
+              <tr>
+                <td class="font-medium"><%= c.contract_number %></td>
+                <td class="text-muted text-sm"><%= c.tenant.full_name %></td>
+                <td><span class="badge <%= c.signed? ? 'badge-success' : 'badge-warning' %>"><%= c.signed? ? 'Signé' : 'En attente' %></span></td>
+                <td class="text-muted text-sm"><%= l(c.created_at.to_date, format: :short) %></td>
+                <td><%= link_to "Voir", contract_path(c), class: "btn btn-ghost btn-sm" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>
 
 <div class="card">
   <div class="card-header"><span class="card-title">Signalements</span></div>

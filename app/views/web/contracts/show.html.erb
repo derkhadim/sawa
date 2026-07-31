@@ -1,0 +1,164 @@
+<div class="mb-6">
+  <%= link_to (current_user.tenant? ? tenant_contracts_path : @contract.apartment), class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Contrat <%= @contract.contract_number %></h1>
+  <span class="badge <%= @contract.signed? ? 'badge-success' : 'badge-warning' %> mt-1">
+    <%= @contract.signed? ? 'Signé' : 'En attente de signature' %>
+  </span>
+</div>
+
+<div class="card max-w-3xl mx-auto">
+  <div class="card-content">
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Appartement</p>
+        <p class="text-sm">Appartement <%= @contract.apartment.number %> — <%= @contract.apartment.building.name %></p>
+      </div>
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Adresse</p>
+        <p class="text-sm"><%= @contract.apartment.building.address %></p>
+      </div>
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Locataire</p>
+        <p class="text-sm"><%= @contract.tenant.full_name %></p>
+      </div>
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Agence</p>
+        <p class="text-sm"><%= @contract.agency.name %></p>
+      </div>
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Loyer mensuel</p>
+        <p class="text-sm font-semibold"><%= number_to_currency(@contract.rent_amount, unit: "", precision: 0) %> FCFA</p>
+      </div>
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide">Durée</p>
+        <p class="text-sm"><%= @contract.start_date ? l(@contract.start_date, format: :long) : '—' %><%= @contract.duration_months ? " · #{@contract.duration_months} mois" : '' %></p>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="mb-4">
+      <p class="text-xs text-muted font-medium uppercase tracking-wide mb-2">Contenu du contrat</p>
+      <div class="bg-muted/30 p-4 rounded-lg text-sm whitespace-pre-wrap" style="font-family: serif; line-height: 1.8;"><%= @contract.content %></div>
+    </div>
+
+    <% if @contract.signed? %>
+      <hr class="my-4">
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide mb-2">Signé le</p>
+        <p class="text-sm"><%= l(@contract.tenant_signed_at, format: :long) %></p>
+      </div>
+      <% if @contract.tenant_signature.present? %>
+        <div class="mt-4">
+          <p class="text-xs text-muted font-medium uppercase tracking-wide mb-2">Signature du locataire</p>
+          <div class="border rounded-lg p-4" style="background: white; max-width: 400px;">
+            <img src="<%= @contract.tenant_signature %>" alt="Signature" style="width: 100%; max-height: 120px; object-fit: contain;">
+          </div>
+        </div>
+      <% end %>
+    <% elsif current_user.tenant? %>
+      <hr class="my-4">
+      <div>
+        <p class="text-xs text-muted font-medium uppercase tracking-wide mb-2">Signature électronique</p>
+        <p class="text-sm text-muted mb-3">Signez le contrat en traçant votre signature ci-dessous :</p>
+
+        <%= form_tag sign_contract_path(@contract), method: :post, id: "signature-form", class: "space-y-4" do %>
+          <%= hidden_field_tag :signature, nil, id: "signature-data" %>
+
+          <div style="border: 2px dashed var(--border); border-radius: var(--radius); overflow: hidden; touch-action: none;">
+            <canvas id="signature-pad" width="600" height="200" style="width: 100%; height: 200px; cursor: crosshair; background: white;"></canvas>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" id="clear-signature" class="btn btn-secondary btn-sm">Effacer</button>
+            <%= submit_tag "Signer le contrat", class: "btn btn-primary", id: "submit-signature", disabled: true %>
+          </div>
+        <% end %>
+      </div>
+
+      <script>
+        (function() {
+          var canvas = document.getElementById('signature-pad');
+          var ctx = canvas.getContext('2d');
+          var drawing = false;
+          var hasDrawing = false;
+          var rect = canvas.getBoundingClientRect();
+
+          function resizeCanvas() {
+            var width = canvas.clientWidth;
+            if (width !== canvas.width) {
+              var oldData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              canvas.width = width;
+              canvas.height = 200;
+              ctx.drawImage(canvas, 0, 0);
+              if (hasDrawing) {
+                ctx.putImageData(oldData, 0, 0);
+              }
+            }
+          }
+
+          function getPos(e) {
+            var rect = canvas.getBoundingClientRect();
+            var touch = e.touches ? e.touches[0] : e;
+            return {
+              x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+              y: (touch.clientY - rect.top) * (canvas.height / rect.height)
+            };
+          }
+
+          function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            hasDrawing = true;
+            var pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            document.getElementById('submit-signature').disabled = false;
+          }
+
+          function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            var pos = getPos(e);
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+          }
+
+          function stopDrawing(e) {
+            e.preventDefault();
+            drawing = false;
+            if (hasDrawing) {
+              document.getElementById('signature-data').value = canvas.toDataURL();
+            }
+          }
+
+          canvas.addEventListener('mousedown', startDrawing);
+          canvas.addEventListener('mousemove', draw);
+          canvas.addEventListener('mouseup', stopDrawing);
+          canvas.addEventListener('mouseleave', stopDrawing);
+          canvas.addEventListener('touchstart', startDrawing, { passive: false });
+          canvas.addEventListener('touchmove', draw, { passive: false });
+          canvas.addEventListener('touchend', stopDrawing, { passive: false });
+
+          document.getElementById('clear-signature').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawing = false;
+            document.getElementById('signature-data').value = '';
+            document.getElementById('submit-signature').disabled = true;
+          });
+
+          window.addEventListener('resize', resizeCanvas);
+          resizeCanvas();
+        })();
+      </script>
+    <% end %>
+  </div>
+</div>

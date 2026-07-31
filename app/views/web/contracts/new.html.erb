@@ -1,0 +1,88 @@
+<div class="mb-6">
+  <%= link_to @apartment, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Créer un contrat</h1>
+  <p class="text-muted text-sm mt-1">Appartement <%= @apartment.number %> — <%= @apartment.building.name %></p>
+</div>
+
+<div class="card max-w-2xl mx-auto">
+  <div class="card-content">
+    <%= form_for [@apartment, @contract], html: { class: "space-y-4" } do |f| %>
+      <h3 class="font-semibold mb-2">Locataire</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <%= label_tag :contract_phone, "Téléphone *", class: "form-label" %>
+          <%= telephone_field_tag 'contract[phone]', nil, class: "form-input", placeholder: "06 XX XX XX XX", required: true %>
+        </div>
+        <div class="space-y-2">
+          <%= label_tag :contract_email, "Email", class: "form-label" %>
+          <%= email_field_tag 'contract[email]', nil, class: "form-input", placeholder: "email@exemple.com" %>
+        </div>
+        <div class="space-y-2">
+          <%= label_tag :contract_first_name, "Prénom", class: "form-label" %>
+          <%= text_field_tag 'contract[first_name]', nil, class: "form-input", placeholder: "Prénom du locataire" %>
+        </div>
+        <div class="space-y-2">
+          <%= label_tag :contract_last_name, "Nom", class: "form-label" %>
+          <%= text_field_tag 'contract[last_name]', nil, class: "form-input", placeholder: "Nom du locataire" %>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      <h3 class="font-semibold mb-2">Détails du contrat</h3>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <%= f.label :contract_number, "Numéro du contrat *", class: "form-label" %>
+          <%= f.text_field :contract_number, class: "form-input", id: "contract_number", required: true %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :rent_amount, "Loyer (FCFA) *", class: "form-label" %>
+          <%= f.number_field :rent_amount, class: "form-input", value: @apartment.rent_amount, step: "1000", required: true %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :start_date, "Date de début", class: "form-label" %>
+          <%= f.date_field :start_date, class: "form-input" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :duration_months, "Durée (mois)", class: "form-label" %>
+          <%= f.number_field :duration_months, class: "form-input", placeholder: "12", min: 1 %>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <%= f.label :content, "Contenu du contrat *", class: "form-label" %>
+        <%= f.text_area :content, class: "form-textarea", rows: 10, placeholder: "Saisissez les termes et conditions du contrat de location...", required: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Créer le contrat", class: "btn btn-primary" %>
+        <%= link_to "Annuler", @apartment, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var mm = String(now.getMonth() + 1).padStart(2, '0');
+    var dd = String(now.getDate()).padStart(2, '0');
+    var prefix = 'CT-' + year + mm + dd + '-';
+
+    var numInput = document.getElementById('contract_number');
+    var firstNameInput = document.querySelector('[name="contract[first_name]"]');
+
+    function updateContractNumber() {
+      var name = firstNameInput.value.trim();
+      var suffix = name.length >= 3 ? name.substring(0, 3).toUpperCase() : name.toUpperCase();
+      numInput.value = prefix + suffix;
+    }
+
+    numInput.value = prefix;
+    firstNameInput.addEventListener('input', updateContractNumber);
+  })();
+</script>

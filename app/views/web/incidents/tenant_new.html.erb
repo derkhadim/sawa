@@ -1,0 +1,30 @@
+<div class="mb-6">
+  <%= link_to dashboard_tenant_path, class: "btn btn-ghost btn-sm mb-4" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour
+  <% end %>
+  <h1>Signaler un problème</h1>
+</div>
+
+<div class="card max-w-lg mx-auto">
+  <div class="card-content">
+    <%= form_tag tenant_new_incident_path, method: :post, class: "space-y-4" do %>
+      <div class="space-y-2">
+        <%= label_tag :apartment_id, "Appartement concerné", class: "form-label" %>
+        <%= select_tag :apartment_id, options_from_collection_for_select(@apartments, :id, ->(a) { "Appartement #{a.number} — #{a.building.name}" }), prompt: "Sélectionnez un appartement", class: "form-input", required: true %>
+      </div>
+      <div class="space-y-2">
+        <%= label_tag :title, "Titre", class: "form-label" %>
+        <%= text_field_tag :title, nil, class: "form-input", placeholder: "Ex: Fuite d'eau", required: true %>
+      </div>
+      <div class="space-y-2">
+        <%= label_tag :description, "Description", class: "form-label" %>
+        <%= text_area_tag :description, nil, class: "form-textarea", rows: 4, placeholder: "Décrivez le problème en détail...", required: true %>
+      </div>
+      <div class="form-actions">
+        <%= submit_tag "Envoyer", class: "btn btn-primary" %>
+        <%= link_to "Annuler", dashboard_tenant_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_27_230508) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_30_000001) do
   create_table "agencies", force: :cascade do |t|
     t.string "name", null: false
     t.string "address"
@@ -60,6 +60,27 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_27_230508) do
     t.datetime "updated_at", null: false
     t.index ["publication_id"], name: "index_comments_on_publication_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "contracts", force: :cascade do |t|
+    t.integer "apartment_id", null: false
+    t.integer "tenant_id", null: false
+    t.integer "agency_id", null: false
+    t.string "contract_number", null: false
+    t.text "content"
+    t.decimal "rent_amount", precision: 10, scale: 2, null: false
+    t.string "status", default: "pending_tenant", null: false
+    t.text "tenant_signature"
+    t.datetime "tenant_signed_at"
+    t.date "start_date"
+    t.integer "duration_months"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agency_id"], name: "index_contracts_on_agency_id"
+    t.index ["apartment_id"], name: "index_contracts_on_apartment_id"
+    t.index ["contract_number"], name: "index_contracts_on_contract_number", unique: true
+    t.index ["status"], name: "index_contracts_on_status"
+    t.index ["tenant_id"], name: "index_contracts_on_tenant_id"
   end
 
   create_table "conversation_participants", force: :cascade do |t|
@@ -240,6 +261,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_27_230508) do
   add_foreign_key "buildings", "owners"
   add_foreign_key "comments", "publications"
   add_foreign_key "comments", "users"
+  add_foreign_key "contracts", "agencies"
+  add_foreign_key "contracts", "apartments"
+  add_foreign_key "contracts", "users", column: "tenant_id"
   add_foreign_key "conversation_participants", "conversations"
   add_foreign_key "conversation_participants", "users"
   add_foreign_key "incidents", "apartments"

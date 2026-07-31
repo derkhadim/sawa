@@ -103,6 +103,7 @@ module Api
 
         payments = current_user.payments.order(year: :desc, month: :desc)
         incidents = current_user.incidents.order(created_at: :desc)
+        pending_contracts = current_user.contracts.pending.includes(:apartment)
 
         now = Time.current
         current_payment = payments.find_by(month: now.month, year: now.year)
@@ -131,6 +132,16 @@ module Api
           },
           recent_incidents: incidents.limit(5).map { |i|
             { id: i.id, title: i.title, status: i.status, created_at: i.created_at, apartment_id: i.apartment_id }
+          },
+          pending_contracts: pending_contracts.map { |c|
+            {
+              id: c.id,
+              contract_number: c.contract_number,
+              rent_amount: c.rent_amount,
+              status: c.status,
+              apartment_number: c.apartment.number,
+              building_name: c.apartment.building.name
+            }
           }
         }
       end

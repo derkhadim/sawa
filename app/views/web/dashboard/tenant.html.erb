@@ -1,9 +1,32 @@
-<div class="page-header">
-  <h1>Mon espace</h1>
+<div class="page-header" style="display: flex; align-items: center; justify-content: space-between;">
+  <h1 style="margin: 0;">Mon espace</h1>
+  <div style="display: flex; gap: 0.5rem;">
+    <% if @apartments.any? %>
+      <% first_building = @apartments.first.building %>
+      <%= link_to "Signaler", tenant_new_incident_path, class: "btn btn-primary btn-sm" %>
+      <%= link_to "Fil d'actu", building_publications_path(first_building), class: "btn btn-sm", style: "background: white; color: var(--primary); border-color: white;" %>
+    <% end %>
+  </div>
 </div>
 
+<% if @pending_contracts&.any? %>
+  <div class="mb-6" style="width: 100%;">
+    <% @pending_contracts.each do |contract| %>
+      <div class="card" style="border-left: 4px solid var(--primary);">
+        <div class="card-content" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <p class="font-medium">Nouveau contrat à signer</p>
+            <p class="text-sm text-muted">Contrat <%= contract.contract_number %> — <%= contract.apartment.building.name %></p>
+          </div>
+          <%= link_to "Voir et signer", contract_path(contract), class: "btn btn-primary btn-sm" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @apartments.any? %>
-  <div class="grid grid-cols-1 gap-4 mb-6">
+  <div class="grid grid-cols-2 gap-4 mb-6">
     <% @apartments.each do |apt| %>
       <% building = apt.building %>
       <div class="card">
@@ -14,7 +37,7 @@
         <div class="card-content">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="text-2xl font-bold text-primary"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA/mois</p>
+              <p class="text-sm text-muted"><%= number_to_currency(apt.rent_amount, unit: "", precision: 0) %> FCFA/mois</p>
               <p class="text-muted text-sm mt-1">Étage <%= apt.floor || "—" %></p>
             </div>
             <div class="flex gap-2 items-end justify-end">
@@ -22,22 +45,9 @@
               <% unless current_month_paid %>
                 <%= link_to "Payer", new_apartment_payment_path(apt), class: "btn btn-primary btn-sm" %>
               <% end %>
-              <%= link_to "Signaler", new_apartment_incident_path(apt), class: "btn btn-ghost btn-sm" %>
-              <%= link_to "Fil d'actu", building_publications_path(building), class: "btn btn-ghost btn-sm" %>
             </div>
           </div>
 
-          <% apt_incidents = @incidents.select { |i| i.apartment_id == apt.id }.first(5) %>
-          <% if apt_incidents.any? %>
-            <hr class="my-3">
-            <p class="text-xs text-muted font-medium mb-2">Signalements</p>
-            <% apt_incidents.each do |i| %>
-              <div class="flex items-center justify-between py-1">
-                <span class="text-sm"><%= i.title %></span>
-                <span class="badge <%= i.status == 'resolved' ? 'badge-success' : i.status == 'in_progress' ? 'badge-primary' : 'badge-warning' %> text-xs"><%= i.status_label %></span>
-              </div>
-            <% end %>
-          <% end %>
         </div>
       </div>
     <% end %>
@@ -53,12 +63,13 @@
         <div class="table-container">
           <table>
             <thead>
-              <tr><th>Appartement</th><th>Période</th><th>Montant</th><th>Statut</th></tr>
+              <tr><th>Appartement</th><th>Immeuble</th><th>Période</th><th>Montant</th><th>Statut</th><th>Date</th></tr>
             </thead>
             <tbody>
               <% @payments.first(10).each do |p| %>
                 <tr class="cursor-pointer hover:bg-muted/50" onclick="window.location='<%= payment_path(p) %>'">
                   <td class="text-muted text-sm">Appt <%= p.apartment.number %></td>
+                  <td class="text-muted text-sm"><%= p.apartment.building.name %></td>
                   <td><%= t('date.month_names')[p.month] %> <%= p.year %></td>
                   <td><%= number_to_currency(p.amount, unit: "", precision: 0) %></td>
                   <td>
@@ -66,6 +77,7 @@
                       <%= p.status == 'paid' ? 'Payé' : p.status == 'late' ? 'Retard' : p.status == 'submitted' ? 'Soumis' : 'En attente' %>
                     </span>
                   </td>
+                  <td class="text-muted text-sm"><%= (p.paid_at || p.created_at).strftime('%d/%m/%Y') rescue '-' %></td>
                 </tr>
               <% end %>
             </tbody>

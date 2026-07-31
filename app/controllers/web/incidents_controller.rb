@@ -40,6 +40,34 @@ class Web::IncidentsController < Web::ApplicationController
     @incident = @apartment.incidents.new
   end
 
+  def tenant_new
+    require_role(:tenant)
+    unless current_user.has_apartment?
+      redirect_to dashboard_tenant_path, alert: 'Aucun appartement assigné'
+      return
+    end
+    @apartments = current_user.apartments_as_tenant.includes(:building)
+    @incident = Incident.new
+  end
+
+  def tenant_create
+    require_role(:tenant)
+    @apartment = current_user.apartments_as_tenant.find(params[:apartment_id])
+    @incident = @apartment.incidents.new(
+      tenant: current_user,
+      title: params[:title],
+      description: params[:description]
+    )
+
+    if @incident.save
+      redirect_to dashboard_tenant_path, notice: 'Signalement envoyé'
+    else
+      @apartments = current_user.apartments_as_tenant.includes(:building)
+      flash.now[:alert] = @incident.errors.full_messages.join(', ')
+      render :tenant_new
+    end
+  end
+
   def create
     @apartment = find_apartment_in_scope
 

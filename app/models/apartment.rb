@@ -5,6 +5,7 @@ class Apartment < ApplicationRecord
   has_many :payments, dependent: :destroy
   has_many :incidents, dependent: :destroy
   has_many :move_out_notices, dependent: :destroy
+  has_many :contracts, dependent: :nullify
 
   validates :number, :rent_amount, presence: true
   validates :number, uniqueness: { scope: :building_id }

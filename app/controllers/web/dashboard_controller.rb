@@ -64,6 +64,7 @@ class Web::DashboardController < Web::ApplicationController
     @payments = current_user.payments.order(year: :desc, month: :desc)
     @incidents = current_user.incidents.order(created_at: :desc)
     @current_payment = @payments.find_by(month: Time.current.month, year: Time.current.year)
+    @pending_contracts = current_user.contracts.pending.includes(:apartment)
   end
 
   def owner

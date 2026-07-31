@@ -1,0 +1,39 @@
+<div class="page-header">
+  <h1>Mes contrats</h1>
+</div>
+
+<% if @contracts.any? %>
+  <div class="grid grid-cols-1 gap-4">
+    <% @contracts.each do |contract| %>
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="card-title"><%= contract.contract_number %></span>
+          <span class="badge <%= contract.signed? ? 'badge-success' : 'badge-warning' %>">
+            <%= contract.signed? ? 'Signé' : 'En attente' %>
+          </span>
+        </div>
+        <div class="card-content">
+          <p class="text-sm">
+            Appartement <%= contract.apartment.number %> — <%= contract.apartment.building.name %>
+          </p>
+          <p class="text-sm text-muted mt-1">
+            Loyer : <%= number_to_currency(contract.rent_amount, unit: "", precision: 0) %> FCFA/mois
+          </p>
+          <% if contract.start_date %>
+            <p class="text-sm text-muted">
+              Début : <%= l(contract.start_date, format: :long) %>
+              <% if contract.duration_months %> · <%= contract.duration_months %> mois<% end %>
+            </p>
+          <% end %>
+        </div>
+        <div class="card-footer" style="display: flex; gap: 0.5rem;">
+          <%= link_to "Voir le contrat", contract_path(contract), class: "btn btn-primary btn-sm" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <p class="text-muted">Aucun contrat pour le moment.</p>
+  </div>
+<% end %>
