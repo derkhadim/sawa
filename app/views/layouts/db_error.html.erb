@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sawa — Maintenance</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; color: #111827; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { max-width: 460px; text-align: center; padding: 4rem 2rem; }
+    .icon-wrapper { width: 80px; height: 80px; margin: 0 auto 1.5rem; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .icon-wrapper svg { width: 36px; height: 36px; }
+    h1 { font-size: 1.5rem; font-weight: 600; color: #dc2626; margin-bottom: 0.75rem; }
+    p { font-size: 0.9375rem; color: #6b7280; line-height: 1.6; margin-bottom: 1.5rem; }
+    .card { background: #f8fafc; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; }
+    .card h3 { font-size: 0.8125rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+    .card ul { font-size: 0.78125rem; color: #6b7280; line-height: 1.6; }
+    .btn { background: #10b981; color: white; padding: 0.625rem 1.25rem; border: none; border-radius: 8px; font-size: 0.8125rem; font-weight: 500; cursor: pointer; margin: 0 0.25rem; }
+    .btn.secondary { background: #f3f4f6; color: #374151; }
+    .footer { margin-top: 1.5rem; font-size: 0.7rem; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-wrapper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+        <circle cx="12" cy="12" r="10" stroke="#d97706" fill="#fef3c7"/>
+        <path d="M12 6v6l4 2" stroke="#d97706" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h1>Base de données en cours de démarrage</h1>
+
+    <p>
+      Le service Sawa est temporairement indisponible. Notre base de données est en cours de redémarrage.
+      <strong>Veuillez rafraîchir la page dans quelques instants.</strong>
+    </p>
+
+    <div class="card">
+      <h3>Que se passe-t-il ?</h3>
+      <ul>
+        <li>La base de données PostgreSQL est en cours de démarrage sur Railway</li>
+        <li>Toutes les connexions sont temporairement bloquées</li>
+        <li>Cela dure habituellement moins de 60 secondes</li>
+      </ul>
+    </div>
+
+    <div>
+      <button class="btn" onclick="window.location.reload()"> Rafraîchir maintenant </button>
+      <button class="btn secondary" onclick="setTimeout(() => window.location.reload(), 8000)">Attendre 8s et rafraîchir</button>
+    </div>
+
+    <p class="footer">Sawa — Gestion Immobilière</p>
+  </div>
+</body>
+</html>
