@@ -19,3 +19,5 @@ production:
   database: sawa_production
   username: sawa
   password: <%= ENV["SAWA_DATABASE_PASSWORD"] %>
+  reconnect: true
+  checkout_timeout: 10
