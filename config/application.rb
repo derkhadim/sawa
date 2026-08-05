@@ -23,7 +23,11 @@ module Loca
     config.autoload_paths << Rails.root.join('app', 'controllers', 'concerns')
     config.autoload_paths << Rails.root.join('lib')
 
-    require Rails.root.join('lib', 'db_error_middleware')
-    config.middleware.use DbErrorMiddleware
+    begin
+      require Rails.root.join('lib', 'db_error_middleware')
+      config.middleware.use DbErrorMiddleware
+    rescue LoadError => e
+      Rails.logger.warn("DbErrorMiddleware could not be loaded: #{e.message}")
+    end
   end
 end
