@@ -6,7 +6,7 @@ class DbErrorMiddleware
   def call(env)
     @app.call(env)
   rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad, PG::ServerError, PG::UnableToSend => e
-    if Rails.env.production?
+    if defined?(Rails) && Rails.env.production?
       [
         503,
         { 'Content-Type' => 'text/html', 'Cache-Control' => 'no-cache' },

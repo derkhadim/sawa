@@ -21,7 +21,9 @@ module Loca
     config.autoload_paths << Rails.root.join('app', 'serializers')
     config.autoload_paths << Rails.root.join('app', 'services')
     config.autoload_paths << Rails.root.join('app', 'controllers', 'concerns')
-    config.autoload_paths << Rails.root.join('app', 'middleware')
+    config.autoload_paths << Rails.root.join('lib')
+
+    require Rails.root.join('lib', 'db_error_middleware')
     config.middleware.use DbErrorMiddleware
   end
 end
