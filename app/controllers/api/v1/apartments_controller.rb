@@ -80,6 +80,7 @@ module Api
         render json: { apartment: apartment_detail(apartment), tenant: { id: tenant.id, name: "#{tenant.first_name} #{tenant.last_name}", phone: tenant.phone } }
       rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
         render json: { error: e.message }, status: :unprocessable_entity
+      end
 
       def unassign_tenant
         apartment = current_user.agency.apartments.joins(:building).find(params[:id])
