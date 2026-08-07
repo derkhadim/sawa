@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_30_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_07_000001) do
   create_table "agencies", force: :cascade do |t|
     t.string "name", null: false
     t.string "address"
@@ -249,6 +249,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_30_000001) do
     t.string "cover_photo"
     t.integer "rating"
     t.integer "owner_id"
+    t.integer "jwt_version", default: 0, null: false
+    t.string "reset_password_digest"
+    t.datetime "reset_password_sent_at"
     t.index ["agency_id"], name: "index_users_on_agency_id"
     t.index ["building_id"], name: "index_users_on_building_id"
     t.index ["owner_id"], name: "index_users_on_owner_id"

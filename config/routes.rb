@@ -6,6 +6,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       post 'auth/register', to: 'auth#register'
       post 'auth/login',    to: 'auth#login'
+      post 'auth/logout',   to: 'auth#logout'
+      post 'auth/forgot_password', to: 'auth#forgot_password'
+      post 'auth/reset_password',  to: 'auth#reset_password'
       get  'auth/me',       to: 'auth#me'
       put  'auth/me',       to: 'auth#update_profile'
 

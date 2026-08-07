@@ -44,6 +44,34 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  # Révoque tous les tokens JWT émis avant cet appel.
+  def revoke_jwt!
+    increment!(:jwt_version)
+  end
+
+  # Génère un token de réinitialisation à usage unique (30 min).
+  def generate_reset_token!
+    token = SecureRandom.urlsafe_base64(32)
+    self.reset_password_digest = BCrypt::Password.create(token)
+    self.reset_password_sent_at = Time.current
+    save!(validate: false)
+    token
+  end
+
+  def reset_token_valid?(token)
+    return false unless reset_password_digest.present?
+    return false if reset_password_sent_at.blank? || reset_password_sent_at < 30.minutes.ago
+
+    BCrypt::Password.new(reset_password_digest) == token
+  rescue BCrypt::Errors::InvalidHash
+    false
+  end
+
+  def consume_reset_token!
+    update!(reset_password_digest: nil, reset_password_sent_at: nil)
+    revoke_jwt!
+  end
+
   def tenant_buildings
     Building.joins(:apartments).where(apartments: { tenant_id: id }).distinct
   end

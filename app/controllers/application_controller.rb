@@ -10,6 +10,12 @@ class ApplicationController < ActionController::API
 
     if decoded
       @current_user = User.find_by(id: decoded[:user_id])
+      # Révoque les tokens antérieurs au dernier logout (jwt_version).
+      # Les anciens tokens sans claim jwt_version sont traités comme version 0
+      # pour ne pas invalider toutes les sessions lors de la migration.
+      if @current_user && decoded[:jwt_version].to_i != @current_user.jwt_version.to_i
+        @current_user = nil
+      end
     end
 
     render json: { error: 'Non autorisé' }, status: :unauthorized unless @current_user
