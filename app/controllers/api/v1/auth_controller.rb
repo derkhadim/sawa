@@ -8,14 +8,6 @@ module Api
         user = User.new(user_params)
         user.role = 'tenant'
 
-        if user.role == 'agence'
-          agency_name = params[:agency_name]
-          unless agency_name.present?
-            return render json: { errors: ["Le nom de l'agence est requis"] }, status: :unprocessable_entity
-          end
-          user.agency = Agency.create!(name: agency_name)
-        end
-
         if user.save
           token = JwtService.encode(user_id: user.id, role: user.role)
           render json: { user: user_response(user), token: token }, status: :created
@@ -34,7 +26,10 @@ module Api
             return render json: { error: "Ce rôle n'est pas disponible pour ce compte" }, status: :forbidden
           end
 
-          token = JwtService.encode(user_id: user.id, role: login_role)
+          # Le rôle embarqué dans le JWT est la vérité serveur (rôle en base).
+          # login_role ne sert qu'à l'interface (sélection d'écran), il n'est
+          # jamais utilisé pour autoriser une action.
+          token = JwtService.encode(user_id: user.id, role: user.role)
           render json: { user: user_response(user, login_role), token: token }
         else
           render json: { error: 'Téléphone ou mot de passe invalide' }, status: :unauthorized
@@ -48,22 +43,26 @@ module Api
       def update_profile
         user = current_user
 
-        if params[:profile_photo].present?
-          uploaded = params[:profile_photo]
-          ext = safe_extension(uploaded.original_filename)
-          filename = "profile_#{user.id}_#{Time.now.to_i}.#{ext}"
-          path = Rails.root.join('public', 'uploads', filename)
-          File.open(path, 'wb') { |f| f.write(uploaded.read) }
-          user.profile_photo = "/uploads/#{filename}"
-        end
+        begin
+          if params[:profile_photo].present?
+            uploaded = params[:profile_photo]
+            ext = validate_upload!(uploaded)
+            filename = "profile_#{user.id}_#{Time.now.to_i}.#{ext}"
+            path = Rails.root.join('public', 'uploads', filename)
+            File.open(path, 'wb') { |f| f.write(uploaded.read) }
+            user.profile_photo = "/uploads/#{filename}"
+          end
 
-        if params[:cover_photo].present?
-          uploaded = params[:cover_photo]
-          ext = safe_extension(uploaded.original_filename)
-          filename = "cover_#{user.id}_#{Time.now.to_i}.#{ext}"
-          path = Rails.root.join('public', 'uploads', filename)
-          File.open(path, 'wb') { |f| f.write(uploaded.read) }
-          user.cover_photo = "/uploads/#{filename}"
+          if params[:cover_photo].present?
+            uploaded = params[:cover_photo]
+            ext = validate_upload!(uploaded)
+            filename = "cover_#{user.id}_#{Time.now.to_i}.#{ext}"
+            path = Rails.root.join('public', 'uploads', filename)
+            File.open(path, 'wb') { |f| f.write(uploaded.read) }
+            user.cover_photo = "/uploads/#{filename}"
+          end
+        rescue SecureUpload::UploadError => e
+          return render json: { errors: [e.message] }, status: :unprocessable_entity
         end
 
         if user.update(profile_params)
@@ -83,12 +82,6 @@ module Api
         params.permit(:email, :phone, :first_name, :last_name)
       end
 
-      def safe_extension(filename)
-        ext = File.extname(filename).delete('.').downcase
-        return 'png' unless ext.present? && SecureUpload::ALLOWED_EXTENSIONS.include?(ext)
-        ext
-      end
-
       def user_response(user, effective_role = nil)
         {
           id: user.id,
@@ -105,7 +98,11 @@ module Api
         }
       end
 
+      PUBLIC_ROLES = %w[tenant owner agence super_admin].freeze
+
       def role_available?(user, login_role)
+        return false unless PUBLIC_ROLES.include?(login_role)
+
         case login_role
         when 'owner' then user.role == 'owner' || user.owner.present?
         when 'tenant' then user.role == 'tenant' || user.building_id.present?

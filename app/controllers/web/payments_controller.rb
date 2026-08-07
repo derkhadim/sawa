@@ -1,4 +1,5 @@
 class Web::PaymentsController < Web::ApplicationController
+  include SecureUpload
 
   def index
     if params[:apartment_id]
@@ -50,7 +51,11 @@ class Web::PaymentsController < Web::ApplicationController
     @payment.payment_method = params[:payment_method]
 
     if params[:proof].present?
-      @payment.proof = save_proof(params[:proof])
+      begin
+        @payment.proof = save_proof(params[:proof])
+      rescue SecureUpload::UploadError => e
+        @payment.errors.add(:proof, e.message)
+      end
     end
 
     if @payment.save
@@ -107,16 +112,10 @@ class Web::PaymentsController < Web::ApplicationController
   private
 
   def save_proof(file)
-    ext = safe_extension(file.original_filename)
+    ext = validate_upload!(file)
     filename = "proof_#{Time.now.to_i}_#{SecureRandom.hex(4)}.#{ext}"
     path = Rails.root.join('public', 'uploads', filename)
     File.open(path, 'wb') { |f| f.write(file.read) }
     "/uploads/#{filename}"
-  end
-
-  def safe_extension(filename)
-    ext = File.extname(filename).delete('.').downcase
-    return 'jpg' unless ext && Payment::ALLOWED_PROOF_EXTENSIONS.include?(ext)
-    ext
   end
 end

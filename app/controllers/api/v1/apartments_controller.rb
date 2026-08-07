@@ -1,6 +1,7 @@
 module Api
   module V1
     class ApartmentsController < ApplicationController
+      include SecureUpload
       before_action :require_agent, except: [:show, :index]
 
       def index
@@ -27,7 +28,14 @@ module Api
 
       def update
         apartment = current_user.agency.apartments.joins(:building).find(params[:id])
-        handle_photos_upload(apartment) if params[:apartment][:photos].present?
+
+        if params[:apartment][:photos].present?
+          begin
+            handle_photos_upload(apartment)
+          rescue SecureUpload::UploadError => e
+            return render json: { errors: [e.message] }, status: :unprocessable_entity
+          end
+        end
 
         if apartment.update(apartment_params)
           render json: { apartment: apartment_detail(apartment) }
@@ -112,18 +120,13 @@ module Api
         uploaded_files = Array(params[:apartment][:photos])
         paths = uploaded_files.first(4).map do |file|
           next unless file.respond_to?(:original_filename)
-          ext = safe_extension(file.original_filename)
+          ext = validate_upload!(file)
           filename = "apt_#{apartment.id}_#{SecureRandom.hex(4)}.#{ext}"
           path = Rails.root.join('public', 'uploads', filename)
           File.open(path, 'wb') { |f| f.write(file.read) }
           "/uploads/#{filename}"
         end.compact
         apartment.photos = paths.to_json
-      end
-
-      def safe_extension(filename)
-        ext = File.extname(filename).delete('.').downcase
-        %w[jpg jpeg png gif webp].include?(ext) ? ext : 'jpg'
       end
 
       def apartment_response(apartment)

@@ -1,5 +1,5 @@
 class Web::BuildingsController < Web::ApplicationController
-  ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
+  include SecureUpload
 
   before_action :require_agent, except: [:index, :show]
   before_action :require_agent_or_owner, only: [:show]
@@ -35,7 +35,11 @@ class Web::BuildingsController < Web::ApplicationController
   def create
     @building = current_user.agency.buildings.new(building_params)
 
-    handle_photo_upload if params[:building][:photo].present?
+    begin
+      handle_photo_upload if params[:building][:photo].present?
+    rescue SecureUpload::UploadError => e
+      @building.errors.add(:photo, e.message)
+    end
 
     if @building.save
       redirect_to buildings_path, notice: 'Immeuble créé'
@@ -54,7 +58,11 @@ class Web::BuildingsController < Web::ApplicationController
   def update
     @building = current_user.agency.buildings.find(params[:id])
 
-    handle_photo_upload if params[:building][:photo].present?
+    begin
+      handle_photo_upload if params[:building][:photo].present?
+    rescue SecureUpload::UploadError => e
+      @building.errors.add(:photo, e.message)
+    end
 
     if @building.update(building_params)
       redirect_to @building, notice: 'Immeuble mis à jour'
@@ -69,16 +77,11 @@ class Web::BuildingsController < Web::ApplicationController
 
   def handle_photo_upload
     uploaded = params[:building][:photo]
-    ext = safe_extension(uploaded.original_filename)
+    ext = validate_upload!(uploaded)
     filename = "building_#{@building.id || Time.now.to_i}_#{Time.now.to_i}.#{ext}"
     path = Rails.root.join('public', 'uploads', filename)
     File.open(path, 'wb') { |f| f.write(uploaded.read) }
     @building.photo = "/uploads/#{filename}"
-  end
-
-  def safe_extension(filename)
-    ext = File.extname(filename).delete('.').downcase
-    %w[jpg jpeg png gif webp].include?(ext) ? ext : 'jpg'
   end
 
   def building_params

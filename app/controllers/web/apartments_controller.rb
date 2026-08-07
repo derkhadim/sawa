@@ -1,5 +1,5 @@
 class Web::ApartmentsController < Web::ApplicationController
-  ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
+  include SecureUpload
 
   before_action :require_agent, except: [:show]
 
@@ -23,7 +23,11 @@ class Web::ApartmentsController < Web::ApplicationController
     @building = current_user.agency.buildings.find(params[:building_id])
     @apartment = @building.apartments.new(apartment_params)
 
-    handle_photos_upload if params[:apartment][:photos].present?
+    begin
+      handle_photos_upload if params[:apartment][:photos].present?
+    rescue SecureUpload::UploadError => e
+      @apartment.errors.add(:photos, e.message)
+    end
 
     if @apartment.save
       redirect_to @building, notice: 'Appartement créé'
@@ -40,7 +44,11 @@ class Web::ApartmentsController < Web::ApplicationController
   def update
     @apartment = Apartment.joins(:building).where(buildings: { agency_id: current_user.agency_id }).find(params[:id])
 
-    handle_photos_upload if params[:apartment][:photos].present?
+    begin
+      handle_photos_upload if params[:apartment][:photos].present?
+    rescue SecureUpload::UploadError => e
+      @apartment.errors.add(:photos, e.message)
+    end
 
     if @apartment.update(apartment_params)
       redirect_to @apartment, notice: 'Appartement mis à jour'
@@ -145,7 +153,7 @@ class Web::ApartmentsController < Web::ApplicationController
     uploaded_files = Array(params[:apartment][:photos])
     paths = uploaded_files.first(4).map do |file|
       next unless file.respond_to?(:original_filename)
-      ext = safe_extension(file.original_filename)
+      ext = validate_upload!(file)
       filename = "apt_#{@apartment.id || Time.now.to_i}_#{SecureRandom.hex(4)}.#{ext}"
       path = Rails.root.join('public', 'uploads', filename)
       File.open(path, 'wb') { |f| f.write(file.read) }
@@ -153,11 +161,6 @@ class Web::ApartmentsController < Web::ApplicationController
     end.compact
 
     @apartment.photos = paths.to_json
-  end
-
-  def safe_extension(filename)
-    ext = File.extname(filename).delete('.').downcase
-    %w[jpg jpeg png gif webp].include?(ext) ? ext : 'jpg'
   end
 
   def apartment_params

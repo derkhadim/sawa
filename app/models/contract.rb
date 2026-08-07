@@ -7,6 +7,7 @@ class Contract < ApplicationRecord
   validates :contract_number, uniqueness: true
   validates :rent_amount, numericality: { greater_than: 0 }
   validates :status, inclusion: { in: %w[pending_tenant signed] }
+  validates :tenant_signature, length: { maximum: 2.megabytes, message: 'La signature est trop volumineuse' }
 
   scope :pending, -> { where(status: 'pending_tenant') }
   scope :signed, -> { where(status: 'signed') }

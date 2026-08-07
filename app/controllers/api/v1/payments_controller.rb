@@ -1,6 +1,7 @@
 module Api
   module V1
     class PaymentsController < ApplicationController
+      include SecureUpload
       before_action :require_agent, only: [:index]
 
       def index
@@ -48,7 +49,11 @@ module Api
         payment.payment_method = params[:payment_method] if params[:payment_method].present?
 
         if params[:proof].present?
-          payment.proof = save_proof_file(params[:proof])
+          begin
+            payment.proof = save_proof_file(params[:proof])
+          rescue SecureUpload::UploadError => e
+            payment.errors.add(:proof, e.message)
+          end
         end
 
         if payment.save
@@ -74,17 +79,11 @@ module Api
       private
 
       def save_proof_file(file)
-        ext = safe_extension(file.original_filename)
+        ext = validate_upload!(file)
         filename = "proof_#{Time.now.to_i}_#{SecureRandom.hex(4)}.#{ext}"
         path = Rails.root.join('public', 'uploads', filename)
         File.open(path, 'wb') { |f| f.write(file.read) }
         "/uploads/#{filename}"
-      end
-
-      def safe_extension(filename)
-        ext = File.extname(filename).delete('.').downcase
-        return 'jpg' unless ext && Payment::ALLOWED_PROOF_EXTENSIONS.include?(ext)
-        ext
       end
 
       def jsonInt(val)

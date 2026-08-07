@@ -1,5 +1,5 @@
 class Web::ProfilesController < Web::ApplicationController
-  ALLOWED_EXTENSIONS = %w[jpg jpeg png gif webp].freeze
+  include SecureUpload
 
   def show
     @user = current_user
@@ -12,22 +12,26 @@ class Web::ProfilesController < Web::ApplicationController
   def update
     @user = current_user
 
-    if params[:user][:profile_photo].present?
-      uploaded = params[:user][:profile_photo]
-      ext = safe_extension(uploaded.original_filename)
-      filename = "profile_#{@user.id}_#{Time.now.to_i}.#{ext}"
-      path = Rails.root.join('public', 'uploads', filename)
-      File.open(path, 'wb') { |f| f.write(uploaded.read) }
-      @user.profile_photo = "/uploads/#{filename}"
-    end
+    begin
+      if params[:user][:profile_photo].present?
+        uploaded = params[:user][:profile_photo]
+        ext = validate_upload!(uploaded)
+        filename = "profile_#{@user.id}_#{Time.now.to_i}.#{ext}"
+        path = Rails.root.join('public', 'uploads', filename)
+        File.open(path, 'wb') { |f| f.write(uploaded.read) }
+        @user.profile_photo = "/uploads/#{filename}"
+      end
 
-    if params[:user][:cover_photo].present?
-      uploaded = params[:user][:cover_photo]
-      ext = safe_extension(uploaded.original_filename)
-      filename = "cover_#{@user.id}_#{Time.now.to_i}.#{ext}"
-      path = Rails.root.join('public', 'uploads', filename)
-      File.open(path, 'wb') { |f| f.write(uploaded.read) }
-      @user.cover_photo = "/uploads/#{filename}"
+      if params[:user][:cover_photo].present?
+        uploaded = params[:user][:cover_photo]
+        ext = validate_upload!(uploaded)
+        filename = "cover_#{@user.id}_#{Time.now.to_i}.#{ext}"
+        path = Rails.root.join('public', 'uploads', filename)
+        File.open(path, 'wb') { |f| f.write(uploaded.read) }
+        @user.cover_photo = "/uploads/#{filename}"
+      end
+    rescue SecureUpload::UploadError => e
+      @user.errors.add(:base, e.message)
     end
 
     if @user.update(profile_params)
@@ -39,11 +43,6 @@ class Web::ProfilesController < Web::ApplicationController
   end
 
   private
-
-  def safe_extension(filename)
-    ext = File.extname(filename).delete('.').downcase
-    %w[jpg jpeg png gif webp].include?(ext) ? ext : 'png'
-  end
 
   def profile_params
     params.require(:user).permit(:email, :phone, :first_name, :last_name, :password, :password_confirmation)
